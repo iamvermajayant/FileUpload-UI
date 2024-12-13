@@ -39,7 +39,7 @@ function RegisterPage() {
       const response = await axios.post('http://localhost:8000/api/register', formData);
       console.log('API Response:', response.data);
       toast.success('Account created successfully!');
-      setTimeout(() => navigate('/welcome'), 2000);
+      setTimeout(() => navigate('/email-verification-pending'), 2000);
     } catch (error) {
       console.error('API Error:', error);
       toast.error(error.response?.data?.message || 'Registration failed');

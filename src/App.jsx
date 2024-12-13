@@ -5,6 +5,7 @@ import PasswordResetPage from './components/Auth/PasswordResetPage';
 import TwoFactorAuthPage from './components/Auth/TwoFactorAuthPage';
 import DashboardPage from './components/Dashboard/Dashboard';
 import SignupPage from './components/Auth/SignupPage';
+import EmailVerificationCard from './components/Auth/EmailVerificationCard';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/reset-password" element={<PasswordResetPage />} />
         <Route path="/two-factor-auth" element={<TwoFactorAuthPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/email-verification-pending" element={<EmailVerificationCard />} />
       </Routes>
     </Router>
   );
