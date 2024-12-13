@@ -30,7 +30,7 @@ function Layout({ children }) {
       <main className="flex-grow">{children}</main>
 
       {/* Footer */}
-      {/* <Footer /> */}
+      <Footer />
 
       {/* Dark/Light Mode Button */}
       {/* Button visibility changes based on scroll position */}
