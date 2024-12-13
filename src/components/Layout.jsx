@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import Footer from './LandingPage/Footer'; // Update the path to match your project structure
 import { ThemeContext } from './ThemeContext'; // Import the ThemeContext
-
+import '../components/style.css';
 function Layout({ children }) {
   const { theme, toggleTheme } = useContext(ThemeContext); // Access theme and toggleTheme from context
   const [isAtBottom, setIsAtBottom] = useState(false);
