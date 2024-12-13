@@ -19,7 +19,7 @@ function Navbar({ theme, toggleTheme }) {
           alt="Nextly Logo"
           className="h-8 w-8"
         />
-        <span className="text-xl font-bold font-sans text-white dark:text-black">
+        <span className="text-xl font-bold font-sans text-black dark:text-white">
         CloudXpand
         </span>
       </div>
