@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './components/LandingPage'
-import LoginPage from './components/Login/LoginPage';
-import PasswordResetPage from './components/Login/PasswordResetPage';
-import TwoFactorAuthPage from './components/Login/TwoFactorAuthPage';
+import LoginPage from './components/Auth/LoginPage';
+import PasswordResetPage from './components/Auth/PasswordResetPage';
+import TwoFactorAuthPage from './components/Auth/TwoFactorAuthPage';
 import DashboardPage from './components/Dashboard/Dashboard';
-import SignupPage from './components/Login/SignupPage';
+import SignupPage from './components/Auth/SignupPage';
 
 function App() {
   return (
