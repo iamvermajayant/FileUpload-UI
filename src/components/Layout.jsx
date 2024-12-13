@@ -1,14 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import Footer from './LandingPage/Footer'; // Update the path to match your project structure
+import { ThemeContext } from './ThemeContext';// Import the ThemeContext
 
 function Layout({ children }) {
-  const [theme, setTheme] = useState('light');
-
-  // Toggle between light and dark themes
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-    document.documentElement.classList.toggle('dark');
-  };
+  const { theme, toggleTheme } = useContext(ThemeContext); // Access theme and toggleTheme from context
 
   return (
     <div className={`min-h-screen flex flex-col ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>

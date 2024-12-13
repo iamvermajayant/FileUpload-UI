@@ -2,8 +2,6 @@
 import React, { useState } from 'react';
 import Navbar from './LandingPage/Navbar';
 import Hero from './LandingPage/Hero';
-// import Features from './LandingPage/Features';
-// import Pricing from './LandingPage/Pricing';
 import Footer from './LandingPage/Footer';
 import Example from './LandingPage/Example';
 
@@ -24,15 +22,13 @@ function LandingPage() {
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       <Hero handleGetStartedClick={handleGetStartedClick} />
       <Example />
-      {/* <Features />
-      <Pricing /> */}
       <button
         onClick={toggleTheme}
         className="fixed bottom-12 right-8 bg-gray-800 text-white p-3 rounded-full shadow-lg hover:bg-gray-600 transition-all"
       >
         {theme === 'light' ? '🌙' : '☀️'}
       </button>
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 }
