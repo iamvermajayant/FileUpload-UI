@@ -1,31 +1,51 @@
 import React, { useState } from 'react';
-import Layout from '../Layout'; // Import your Layout component
+import axios from 'axios';
+import Layout from '../Layout';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function RegisterPage() {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Handle registration form submission
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
 
-    // Mock successful registration logic
-    navigate('/welcome'); // Redirect to a welcome or login page after successful registration
+    const formData = {
+      first_name: firstName,
+      last_name: lastName,
+      email,
+      username,
+      password,
+      confirm_password: confirmPassword,
+    };
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/register', formData);
+      console.log('API Response:', response.data);
+      toast.success('Account created successfully!');
+      setTimeout(() => navigate('/welcome'), 2000);
+    } catch (error) {
+      console.error('API Error:', error);
+      toast.error(error.response?.data?.message || 'Registration failed');
+    }
   };
 
   return (
     <Layout>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <div className="flex min-h-screen bg-white transition-colors duration-300">
-        {/* Left Side: Registration Form */}
         <div className="w-full md:w-1/2 flex justify-center items-center p-8">
           <div className="bg-gray-100 p-8 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-3xl font-bold mb-4 text-gray-900">Create your account</h2>
@@ -34,12 +54,37 @@ function RegisterPage() {
               <a href="/login" className="text-blue-500 hover:underline">Sign in.</a>
             </p>
             <form onSubmit={handleRegister}>
+              <label className="block mb-2 text-gray-600">Username</label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full p-2 mb-4 bg-white text-gray-900 border border-gray-300 rounded focus:outline-none"
+                required
+              />
+              <label className="block mb-2 text-gray-600">First Name</label>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full p-2 mb-4 bg-white text-gray-900 border border-gray-300 rounded focus:outline-none"
+                required
+              />
+              <label className="block mb-2 text-gray-600">Last Name</label>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full p-2 mb-4 bg-white text-gray-900 border border-gray-300 rounded focus:outline-none"
+                required
+              />
               <label className="block mb-2 text-gray-600">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full p-2 mb-4 bg-white text-gray-900 border border-gray-300 rounded focus:outline-none"
+                required
               />
               <label className="block mb-2 text-gray-600">Password</label>
               <input
@@ -47,6 +92,7 @@ function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full p-2 mb-4 bg-white text-gray-900 border border-gray-300 rounded focus:outline-none"
+                required
               />
               <label className="block mb-2 text-gray-600">Confirm Password</label>
               <input
@@ -54,6 +100,7 @@ function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full p-2 mb-4 bg-white text-gray-900 border border-gray-300 rounded focus:outline-none"
+                required
               />
               <button
                 type="submit"
@@ -61,7 +108,6 @@ function RegisterPage() {
               >
                 Create account
               </button>
-              {error && <p className="text-red-500 mt-2">{error}</p>}
             </form>
             <div className="flex flex-col mt-6">
               <button className="flex items-center justify-center w-full mb-2 p-2 bg-gray-300 text-gray-900 rounded hover:bg-gray-400">
@@ -76,10 +122,9 @@ function RegisterPage() {
           </div>
         </div>
 
-        {/* Right Side: Image */}
         <div className="hidden md:flex md:w-1/2 justify-center items-center p-8 bg-gray-200">
           <img
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/authentication/illustration.svg" // Replace with the exact path of your image
+            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/authentication/illustration.svg"
             alt="Illustration"
             className="max-w-full h-auto"
           />
