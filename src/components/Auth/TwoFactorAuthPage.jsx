@@ -98,9 +98,9 @@ function TwoFactorAuthPage() {
         </div>
 
         {/* Right Side: Image */}
-        <div className="hidden md:flex md:w-1/2 justify-center items-center p-8 bg-gray-200 dark:bg-gray-900">
+        <div className="hidden md:flex md:w-1/2 justify-center items-center p-8">
           <img
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/authentication/illustration.svg"
+            src="https://i.postimg.cc/5N7Ym4mv/vecteezy-3d-illustration-of-a-teenage-female-programmer-at-the-35899074.png"
             alt="Illustration"
             className="max-w-full h-auto"
           />

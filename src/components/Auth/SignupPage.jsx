@@ -130,9 +130,9 @@ function RegisterPage() {
         </div>
 
         {/* Right Side: Image */}
-        <div className="hidden md:flex md:w-1/2 justify-center items-center p-8 bg-gray-200 dark:bg-gray-900">
+        <div className="hidden md:flex md:w-1/2 justify-center items-center p-8">
           <img
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/authentication/illustration.svg"
+            src="https://i.postimg.cc/XqnGsXhK/vecteezy-3d-illustration-of-a-teenage-female-programmer-at-the-35899068.png"
             alt="Illustration"
             className="max-w-full h-auto"
           />
