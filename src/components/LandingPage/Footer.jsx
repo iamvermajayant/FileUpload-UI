@@ -2,7 +2,7 @@ import React from 'react';
 
 function Footer() {
   return (
-    <footer className="bg-gray-100 dark:bg-gray-800 py-6 absolute bottom-0 w-full">
+    <footer className="bg-gray-100 dark:bg-gray-800 py-6">
       <div className="flex flex-col md:flex-row justify-between items-center px-8 space-y-4 md:space-y-0">
         {/* Left: Privacy, Terms, Contact */}
         <div className="flex space-x-4">
@@ -29,6 +29,7 @@ function Footer() {
             className="text-gray-600 dark:text-gray-300 hover:text-blue-500"
             aria-label="Facebook"
           >
+            {/* Facebook Icon */}
             <svg
               className="w-6 h-6"
               xmlns="http://www.w3.org/2000/svg"
@@ -43,6 +44,7 @@ function Footer() {
             className="text-gray-600 dark:text-gray-300 hover:text-blue-500"
             aria-label="Twitter"
           >
+            {/* Twitter Icon */}
             <svg
               className="w-6 h-6"
               xmlns="http://www.w3.org/2000/svg"
@@ -57,6 +59,7 @@ function Footer() {
             className="text-gray-600 dark:text-gray-300 hover:text-blue-500"
             aria-label="LinkedIn"
           >
+            {/* LinkedIn Icon */}
             <svg
               className="w-6 h-6"
               xmlns="http://www.w3.org/2000/svg"

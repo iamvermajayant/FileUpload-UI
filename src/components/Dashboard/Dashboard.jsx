@@ -139,7 +139,7 @@ function DashboardPage() {
     <Layout>
       <div className="flex">
         {/* Sidebar */}
-        <div className="w-64 bg-gray-200 text-white h-screen p-4">
+        <div className="w-64 bg-gray-200 dark:bg-gray-800 text-white h-screen p-4">
           <div className="flex flex-col space-y-4">
             {/* Button to trigger file upload */}
             <div {...getRootProps()} className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded cursor-pointer text-center">
@@ -170,7 +170,7 @@ function DashboardPage() {
 
         {/* Main Content */}
         <div className="flex-1 p-8">
-          <h2 className="text-3xl font-bold text-black-800 dark:text-white-100 mb-4">Admin Dashboard</h2>
+          <h2 className="text-3xl font-bold text-black dark:text-white mb-4">Admin Dashboard</h2>
 
           {/* Dashboard Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -203,7 +203,7 @@ function DashboardPage() {
           <div className="mb-8 mt-4">
             <input
               type="text"
-              className="w-full p-3 rounded border border-gray-400"
+              className="w-full p-3 rounded border border-gray-400 dark:bg-gray-800 dark:text-white"
               placeholder="Search files..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -211,80 +211,56 @@ function DashboardPage() {
           </div>
 
           {/* Drag-and-Drop Upload */}
-          <div {...getRootProps()} className="bg-dashed border-4 border-gray-400 p-10 rounded text-center mt-4">
+          <div {...getRootProps()} className="bg-dashed border-4 border-gray-400 dark:border-gray-600 p-10 rounded text-center mt-4">
             <input {...getInputProps()} />
-            <p>Drag & drop some files here, or click to select files</p>
+            <p className="text-gray-600 dark:text-gray-300">Drag & drop some files here, or click to select files</p>
             <p className="text-gray-600 dark:text-gray-300">Supported formats: .txt, .jpg, .png, .pdf</p>
           </div>
 
           {/* Files List */}
           <div className="mb-8 mt-4">
-            <h3 className="text-2xl font-semibold text-black-800 dark:text-white-100 mb-4">Files List</h3>
+            <h3 className="text-2xl font-semibold text-black dark:text-white mb-4">Files List</h3>
             <div className="space-y-4">
               {filteredFiles.map((file) => (
-                <div key={file.id} className="flex justify-between items-center bg-gray dark:bg-white-400 p-4 rounded shadow-lg">
+                <div key={file.id} className="flex justify-between items-center bg-gray-200 dark:bg-gray-700 p-4 rounded shadow-lg">
                   <div className="flex items-center">
                     <input
                       type="checkbox"
                       checked={selectedFiles.includes(file.id)}
                       onChange={() => handleSelectFile(file.id)}
+                      className="mr-2"
                     />
-                    <span className="ml-2">
-                      {editingFile === file.id ? (
-                        <input
-                          type="text"
-                          value={newFileName}
-                          onChange={(e) => setNewFileName(e.target.value)}
-                          className="border p-2 rounded"
-                        />
-                      ) : (
-                        file.name
-                      )}
-                    </span>
+                    <span className="text-gray-700 dark:text-white">{file.name}</span>
                   </div>
-                  <div className="flex items-center">
+                  <div className="flex space-x-4">
+                    {/* Edit button */}
                     <button
-                      className="text-red-600 hover:text-red-800 ml-2"
-                      onClick={() => handleDelete(file.id)}
+                      className="text-blue-600 dark:text-blue-400"
+                      onClick={() => handleRenameFile(file.id)}
                     >
-                      <FaTrash />
+                      <FaEdit /> Rename
                     </button>
+                    {/* Link button */}
                     <button
-                      className="text-blue-600 hover:text-blue-800 ml-2"
-                      onClick={() => handleDownload(file)}
-                    >
-                      <FaDownload />
-                    </button>
-                    <button
-                      className="text-green-600 hover:text-green-800 ml-2"
+                      className="text-green-600 dark:text-green-400"
                       onClick={() => handleShareLink(file.id)}
                     >
-                      <FaLink />
+                      <FaLink /> Share
                     </button>
-                    {editingFile === file.id ? (
-                      <>
-                        <button
-                          className="text-yellow-600 hover:text-yellow-800 ml-2"
-                          onClick={() => handleSaveRename(file.id)}
-                        >
-                          Save
-                        </button>
-                        <button
-                          className="text-gray-600 hover:text-gray-800 ml-2"
-                          onClick={handleCancelRename}
-                        >
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        className="text-gray-600 hover:text-gray-800 ml-2"
-                        onClick={() => handleRenameFile(file.id)}
-                      >
-                        <FaEdit />
-                      </button>
-                    )}
-                    <span className="ml-2 text-gray-600 dark:text-gray-300">({file.size})</span>
+                    {/* Download button */}
+                    <button
+                      className="text-gray-600 dark:text-gray-400"
+                      onClick={() => handleDownload(file)}
+                    >
+                      <FaDownload /> Download
+                    </button>
+                    {/* Delete button */}
+                    <button
+                      className="text-red-600 dark:text-red-400"
+                      onClick={() => handleDelete(file.id)}
+                    >
+                      <FaTrash /> Delete
+                    </button>
                   </div>
                 </div>
               ))}
@@ -293,30 +269,7 @@ function DashboardPage() {
         </div>
       </div>
 
-      {/* Share Link Modal */}
-      {showShareModal && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-            <h3 className="text-2xl mb-4">Share File Link</h3>
-            <p className="text-sm mb-4">Link: <span className="font-bold">{shareLink}</span></p>
-            <div className="flex justify-between mb-4">
-              <button onClick={handleCopyLink} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                Copy Link
-              </button>
-              <button onClick={handleShareOnGmail} className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
-                Share on Gmail
-              </button>
-              <button onClick={handleShareOnWhatsApp} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
-                Share on WhatsApp
-              </button>
-            </div>
-            <button onClick={() => setShowShareModal(false)} className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
+      {/* Toast Notifications */}
       <ToastContainer />
     </Layout>
   );
