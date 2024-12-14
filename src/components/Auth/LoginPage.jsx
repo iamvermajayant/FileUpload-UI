@@ -1,30 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../Layout'; // Import your Layout component
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle, faApple } from '@fortawesome/free-brands-svg-icons'; // Import Google and Apple icons
 
 function LoginPage() {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(true); // Loading state for API call
+  const [requires2FA, setRequires2FA] = useState(false);
   const navigate = useNavigate();
 
-  // Dummy credentials for login
-  const dummyCredentials = {
-    email: 'admin@example.com',
-    password: '123',
-  };
-
   // Handle login form submission
-  const handleLogin = (e) => {
+  // const handleLogin = (e) => {
+  //   e.preventDefault();
+  //   // Dummy credentials for login
+  //   const dummyCredentials = {
+  //     email: 'admin@example.com',
+  //     password: '123',
+  //   };
+
+  //   if (email === dummyCredentials.email && password === dummyCredentials.password) {
+  //     navigate('/two-factor-auth');
+  //   } else {
+  //     setError('Invalid credentials');
+  //   }
+  // };
+
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (email === dummyCredentials.email && password === dummyCredentials.password) {
-      navigate('/two-factor-auth');
-    } else {
-      setError('Invalid credentials');
+    setLoading(true);
+    setError('');
+
+    try {
+      const formData = new URLSearchParams();
+      formData.append('username', username);
+      formData.append('password', password);
+      formData.append('remember_me', rememberMe);
+
+      const response = await axios.post('http://localhost:8000/api/login', formData, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+
+      const data = response.data;
+
+      if (data) {
+        // Redirect to the 2FA page
+        //navigate('/two-factor-auth', { state: { email: data.email } });
+        console.log(data);
+      } else {
+        // Handle successful login
+        console.log('Access Token:', data.access_token);
+        // Save the token to local storage or a secure place
+        localStorage.setItem('accessToken', data.access_token);
+        navigate('/dashboard'); // Redirect to the dashboard
+      }
+    } catch (err) {
+      if (err.response) {
+        // Display error from server
+        setError(err.response.data.detail || 'Login failed');
+      } else {
+        setError('An error occurred. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
+
+  
 
   return (
     <Layout>
@@ -40,9 +89,9 @@ function LoginPage() {
             <form onSubmit={handleLogin}>
               <label className="block mb-2 text-gray-600 dark:text-gray-300">Email</label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="w-full p-2 mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded focus:outline-none"
               />
               <label className="block mb-2 text-gray-600 dark:text-gray-300">Password</label>
@@ -81,7 +130,7 @@ function LoginPage() {
         </div>
 
         {/* Right Side: Image */}
-        <div className="hidden md:flex md:w-1/2 justify-center items-center p-8 bg-gray-200 dark:bg-gray-900">
+        <div className="hidden md:flex md:w-1/2 justify-center items-center p-8 ">
           <img
             src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/authentication/illustration.svg"
             alt="Illustration"
@@ -94,3 +143,5 @@ function LoginPage() {
 }
 
 export default LoginPage;
+
+

@@ -42,7 +42,7 @@ function RegisterPage() {
       setTimeout(() => navigate('/email-verification-pending'), 2000);
     } catch (error) {
       console.error('API Error:', error);
-      toast.error(error.response?.data?.message || 'Registration failed');
+      toast.error(error.response?.data?.detail || 'Registration failed');
     }
   };
 
