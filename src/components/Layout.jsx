@@ -19,13 +19,22 @@ function Layout({ children }) {
     };
   }, []);
 
+  const lightModeBackgroundImage = theme === 'light' ? {
+    backgroundImage: 'url("https://i.postimg.cc/tTx1NhH9/beams.jpg")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+  } : {};
+
   // Conditional gradient background for light and dark mode
   const backgroundGradient = theme === 'dark'
     ? 'bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900' // Dark mode gradient
     : 'bg-gradient-to-r from-slate-200 via-slate-100 to-salte-200'; // Light mode gradient (blue)
 
   return (
-    <div className={`min-h-screen flex flex-col ${backgroundGradient} ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+    <div 
+      className={`min-h-screen flex flex-col ${backgroundGradient} ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
+      style={lightModeBackgroundImage}
+    >
       {/* Main Content */}
       <main className="flex-grow">{children}</main>
 
