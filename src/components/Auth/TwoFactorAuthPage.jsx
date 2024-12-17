@@ -59,8 +59,8 @@ function TwoFactorAuthPage() {
         <div className="w-full md:w-1/2 flex justify-center items-center p-8">
           <div className="bg-gray-100 dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-100">Two-Factor Authentication</h2>
-            <p className="mb-6 text-gray-500 dark:text-gray-400">
-              Please confirm your account by entering the verification code sent to your mobile number ending in {authCode}.
+            <p className="text-xl mb-6 text-gray-500 dark:text-gray-400">
+              Please enter the code <b>{authCode}</b>.
             </p>
             <form onSubmit={handleAuth} className="space-y-6">
               <div className="inline-flex items-center gap-5">
