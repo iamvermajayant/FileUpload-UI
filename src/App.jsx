@@ -3,7 +3,7 @@ import LandingPage from "./components/LandingPage";
 import LoginPage from "./components/Auth/LoginPage";
 import PasswordResetPage from "./components/Auth/PasswordResetPage";
 import TwoFactorAuthPage from "./components/Auth/TwoFactorAuthPage";
-import DashboardPage from "./components/Dashboard/Dashboard";
+import DashboardPage from "./components/Dashboard/pages/Dashboard";
 import SignupPage from "./components/Auth/SignupPage";
 import EmailVerificationCard from "./components/Auth/EmailVerificationCard";
 import EmailVerified from "./components/Auth/EmailVerified";
