@@ -26,7 +26,7 @@ const FilePreviewPopup = ({ file, onConfirm, onCancel }) => {
             src={URL.createObjectURL(file)}
             title={file.name}
             width="100%"
-            height="500px"
+            height="350px"
           />
         );
       case 'application/msword':
@@ -74,7 +74,7 @@ const FilePreviewPopup = ({ file, onConfirm, onCancel }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-3xl w-full">
+      <div className="bg-slate-200 dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-3xl w-auto">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">File Preview</h3>
         <div className="mb-4">
           {getFilePreview()}
