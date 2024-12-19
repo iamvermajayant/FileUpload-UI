@@ -8,12 +8,30 @@ const UserProfilePopup = ({
   user,
   onLogout,
   onChangePassword,
+  onChangeName,
+  onChangeAvatar,
 }) => {
   const [newPassword, setNewPassword] = useState(""); // State for holding the new password entered by the user
+  const [newName, setNewName] = useState(user.name); // State for holding the new name
+  const [newAvatar, setNewAvatar] = useState(null); // State for holding the new avatar file
 
   const handleChangePassword = () => {
     onChangePassword(newPassword); // Call onChangePassword function with the new password
     setNewPassword(""); // Clear the new password field after submission
+  };
+
+  const handleChangeName = () => {
+    if (newName !== user.name) {
+      onChangeName(newName); // Call onChangeName function to update the name
+    }
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewAvatar(URL.createObjectURL(file)); // Temporarily show the uploaded image
+      onChangeAvatar(file); // Pass the selected file to the parent component
+    }
   };
 
   if (!isOpen) return null; // If the popup is not open, return null to render nothing
@@ -32,9 +50,9 @@ const UserProfilePopup = ({
 
           <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center relative group">
             {/* Profile picture area, circular shape, with a fallback if no avatar */}
-            {user.avatar ? (
+            {newAvatar || user.avatar ? (
               <img
-                src={user.avatar}
+                src={newAvatar || user.avatar}
                 alt={user.name}
                 className="w-full h-full rounded-full object-cover"
               />
@@ -45,19 +63,26 @@ const UserProfilePopup = ({
 
             <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               {/* Hover effect for the avatar change button */}
-              <button
-                className="text-white"
-                onClick={() => console.log("Change avatar")}
-              >
-                Change
+              <button className="text-white">
+                <label htmlFor="avatar-upload" className="cursor-pointer">
+                  Change
+                </label>
               </button>
             </div>
+            <input
+              id="avatar-upload"
+              type="file"
+              className="hidden"
+              accept="image/*"
+              onChange={handleAvatarChange}
+            />
           </div>
 
           <input
             type="text"
-            value={user.name}
-            onChange={(e) => console.log("Change name:", e.target.value)}
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onBlur={handleChangeName}
             className="text-xl font-semibold text-center bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-blue-500 dark:text-white"
           />
           {/* Input for editing the user's name, with text styling */}

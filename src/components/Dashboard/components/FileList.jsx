@@ -135,21 +135,21 @@ const ListViewFiles = ({
               {/* Action buttons: Download, Rename, Delete */}
               <button
                 onClick={() => handleDownload(file)} // Handle file download
-                className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2"
+                className="hover:text-indigo-900  dark:hover:text-indigo-300 mr-4 text-lg"
                 title="Download"
               >
                 <FaDownload />
               </button>
               <button
                 onClick={() => handleRenameSelectedFile(file)} // Handle file renaming
-                className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-2"
+                className="hover:text-green-900 dark:hover:text-green-300 mr-4 text-lg"
                 title="Rename"
               >
                 <FaEdit />
               </button>
               <button
                 onClick={() => handleDelete(file.id)} // Handle file deletion
-                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-2"
+                className="hover:text-red-900 dark:hover:text-red-300 mr-4 text-lg"
                 title="Delete"
               >
                 <FaTrash />
