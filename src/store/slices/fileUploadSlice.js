@@ -27,7 +27,7 @@ export const uploadFile = createAsyncThunk(
 // Thunk for fetching all files
 export const fetchFiles = createAsyncThunk(
   "fileUpload/fetchFiles",
-  async ({ page = 1, perPage = 10, sortOrder = "asc" }, { rejectWithValue }) => {
+  async ({ page = 1, perPage = 8, sortOrder = "asc" }, { rejectWithValue }) => {
     try {
       const response = await userRequest.get(
         `/files?page=${page}&per_page=${perPage}&sort_order=${sortOrder}`
@@ -39,6 +39,20 @@ export const fetchFiles = createAsyncThunk(
     }
   }
 );
+
+export const deleteFile = createAsyncThunk(
+  "fileUpload/deleteFile",
+  async (fileId, { rejectWithValue }) => {
+    try {
+      const response = await userRequest.delete(`/files/${fileId}`);
+      console.log(response.data)
+      return response.data;  // Return file ID to identify the deleted file
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 
 const fileUploadSlice = createSlice({
   name: "fileUpload",
@@ -79,6 +93,18 @@ const fileUploadSlice = createSlice({
       })
       .addCase(fetchFiles.rejected, (state, action) => {
         state.fetchStatus = "failed";
+        state.error = action.payload;
+      })
+      .addCase(deleteFile.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteFile.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        // Remove the deleted file from the Allfiles array
+        state.Allfiles = state.Allfiles.filter(file => file.id !== action.payload);
+      })
+      .addCase(deleteFile.rejected, (state, action) => {
+        state.status = "failed";
         state.error = action.payload;
       });
   },

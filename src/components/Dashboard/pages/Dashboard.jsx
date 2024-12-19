@@ -14,38 +14,43 @@ import FilePreviewPopup from "../components/file-preview-popup";
 import RenameModal from "../components/RenameModal";
 import { v4 as uuidv4 } from "uuid";
 import { ThemeProvider } from 'next-themes';
+import { useSelector } from "react-redux";
+import { deleteFile, fetchFiles } from "../../../store/slices/fileUploadSlice";
+import { useDispatch } from 'react-redux';
 
 function DashboardPage() {
   const navigate = useNavigate();
-  const [files, setFiles] = useState([
-    {
-      id: 1,
-      name: "file1.txt",
-      size: 1048576,
-      type: "text/plain",
-      tags: ["Important"],
-      status: "active",
-      preview: null,
-    },
-    {
-      id: 2,
-      name: "file2.jpg",
-      size: 2097152,
-      type: "image/jpeg",
-      tags: ["Image"],
-      status: "active",
-      preview: "https://picsum.photos/200/300",
-    },
-    {
-      id: 3,
-      name: "file3.pdf",
-      size: 3145728,
-      type: "application/pdf",
-      tags: ["Document"],
-      status: "expired",
-      preview: null,
-    },
-  ]);
+  // const [files, setFiles] = useState([
+  //   {
+  //     id: 1,
+  //     name: "file1.txt",
+  //     size: 1048576,
+  //     type: "text/plain",
+  //     tags: ["Important"],
+  //     status: "active",
+  //     preview: null,
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "file2.jpg",
+  //     size: 2097152,
+  //     type: "image/jpeg",
+  //     tags: ["Image"],
+  //     status: "active",
+  //     preview: "https://picsum.photos/200/300",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "file3.pdf",
+  //     size: 3145728,
+  //     type: "application/pdf",
+  //     tags: ["Document"],
+  //     status: "expired",
+  //     preview: null,
+  //   },
+  // ]);
+  const Allfiles = useSelector((state) => state.fileUpload.Allfiles);
+  const fetchStatus = useSelector((state) => state.fileUpload.fetchStatus);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [newFileName, setNewFileName] = useState("");
@@ -59,10 +64,13 @@ function DashboardPage() {
   const [showManageLinksModal, setShowManageLinksModal] = useState(false);
   const [showCreateLinkModal, setShowCreateLinkModal] = useState(false);
   const [links, setLinks] = useState([]);
+  const dispatch = useDispatch();
+ 
 
   const handleDelete = (fileId) => {
     if (window.confirm("Are you sure you want to delete this file?")) {
-      setFiles(files.filter((file) => file.id !== fileId));
+      dispatch(deleteFile(fileId));
+      //dispatch(fetchFiles({ page: 1, perPage : 8, sortOrder: 'asc' }));
       toast.success("File deleted successfully!");
     }
   };
@@ -76,7 +84,7 @@ function DashboardPage() {
           `Are you sure you want to delete ${selectedFiles.length} selected file(s)?`
         )
       ) {
-        setFiles(files.filter((file) => !selectedFiles.includes(file.id)));
+        //setFiles(files.filter((file) => !selectedFiles.includes(file.id)));
         setSelectedFiles([]);
         toast.success("Selected files deleted successfully!");
       }
@@ -98,7 +106,7 @@ function DashboardPage() {
   };
 
   const createLink = (fileId, expiration, password, viewLimit) => {
-    const file = files.find((f) => f.id === fileId);
+    const file = Allfiles.find((f) => f.id === fileId);
     if (file) {
       const newLink = {
         id: uuidv4(),
@@ -160,7 +168,7 @@ function DashboardPage() {
           ? URL.createObjectURL(fileToUpload)
           : null,
       };
-      setFiles((prevFiles) => [...prevFiles, newFile]);
+      //setFiles((prevFiles) => [...prevFiles, newFile]);
       setFileToUpload(null);
       toast.success(`Uploaded ${fileToUpload.name} successfully!`);
     }
@@ -178,11 +186,11 @@ function DashboardPage() {
 
   const confirmRename = () => {
     if (fileToRename && newFileName) {
-      setFiles(
-        files.map((file) =>
-          file.id === fileToRename.id ? { ...file, name: newFileName } : file
-        )
-      );
+      // setFiles(
+      //   files.map((file) =>
+      //     file.id === fileToRename.id ? { ...file, name: newFileName } : file
+      //   )
+      // );
       setIsRenaming(false);
       setFileToRename(null);
       setNewFileName("");
@@ -236,14 +244,14 @@ function DashboardPage() {
             <DashboardHeader toggleSidebar={toggleSidebar} />
             <section className="flex-1 overflow-y-auto p-9">
               <DashboardStats
-                totalFiles={files.length}
+                totalFiles={Allfiles.length}
                 totalLinks={links.length}
-                activeFiles={files.filter((file) => file.status === "active").length}
-                expiredFiles={files.filter((file) => file.status === "expired").length}
+                activeFiles={Allfiles.filter((file) => file.status === "active").length}
+                expiredFiles={Allfiles.filter((file) => file.status === "expired").length}
               />
               <UploadArea handleUpload={handleUpload} />
               <FileList
-                files={files}
+                files={Allfiles}
                 searchQuery={searchQuery}
                 isListView={isListView}
                 toggleView={toggleView}
@@ -295,7 +303,7 @@ function DashboardPage() {
         )}
         {showCreateLinkModal && (
           <CreateLinkModal
-            files={files}
+            Allfiles={Allfiles}
             onClose={() => setShowCreateLinkModal(false)}
             onCreateLink={createLink}
           />
