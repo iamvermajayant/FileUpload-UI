@@ -1,24 +1,26 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faPlus, faCog, faTrash, faSignOutAlt, faUsers, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faPlus, faCog, faTrash, faSignOutAlt, faUsers, faMoon, faSun, faTag } from '@fortawesome/free-solid-svg-icons';
 import UserProfilePopup from './UserProfilePopup';
 import AllUsersPopup from './AllUsersPopup';
+import CreateLinkModal from './create-link-modal';
+import TagCreationPopup from './TagCreationPopup';
 
 const Sidebar = ({
   isSidebarVisible,
   searchQuery,
   setSearchQuery,
-  handleCreateLink,
   handleManageLinks,
   handleBulkDelete,
   handleLogout,
   handleUserProfile,
   handleAllUsers,
   theme,
-  
 }) => {
   const [showAllUsersPopup, setShowAllUsersPopup] = useState(false);
   const [showUserProfilePopup, setShowUserProfilePopup] = useState(false);
+  const [showCreateLinkModal, setShowCreateLinkModal] = useState(false);
+  const [showTagCreationPopup, setShowTagCreationPopup] = useState(false);
 
   if (!isSidebarVisible) return null;
 
@@ -33,6 +35,18 @@ const Sidebar = ({
     { id: '2', name: 'Jane Smith', email: 'jane@example.com', avatar: 'https://example.com/jane.jpg' },
     // Add more users as needed
   ];
+
+  const handleCreateLink = (file, expiration, password, viewLimit) => {
+    // Implement link creation logic here
+    console.log('Creating link:', { file, expiration, password, viewLimit });
+    setShowCreateLinkModal(false);
+  };
+
+  const handleCreateTag = (tagData) => {
+    // Implement tag creation logic here
+    console.log('Creating tag:', tagData);
+    setShowTagCreationPopup(false);
+  };
 
   return (
     <aside className="flex flex-col w-64 h-full px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700">
@@ -49,8 +63,11 @@ const Sidebar = ({
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <SidebarButton onClick={handleCreateLink} icon={faPlus}>
+        <SidebarButton onClick={() => setShowCreateLinkModal(true)} icon={faPlus}>
           Create Link
+        </SidebarButton>
+        <SidebarButton onClick={() => setShowTagCreationPopup(true)} icon={faTag}>
+          Create Tag
         </SidebarButton>
         <SidebarButton onClick={handleManageLinks} icon={faCog}>
           Manage Links
@@ -61,7 +78,6 @@ const Sidebar = ({
         <SidebarButton onClick={() => setShowAllUsersPopup(true)} icon={faUsers}>
           All Users
         </SidebarButton>
-        
         <SidebarButton onClick={handleLogout} icon={faSignOutAlt}>
           Logout
         </SidebarButton>
@@ -80,18 +96,35 @@ const Sidebar = ({
         </button>
       </div>
 
-      <AllUsersPopup
-        isOpen={showAllUsersPopup}
-        onClose={() => setShowAllUsersPopup(false)}
-        users={allUsers}
-      />
-      <UserProfilePopup
-        isOpen={showUserProfilePopup}
-        onClose={() => setShowUserProfilePopup(false)}
-        user={currentUser}
-        onLogout={handleLogout}
-        onChangePassword={(newPassword) => console.log('Change password:', newPassword)}
-      />
+      {showAllUsersPopup && (
+        <AllUsersPopup
+          isOpen={showAllUsersPopup}
+          onClose={() => setShowAllUsersPopup(false)}
+          users={allUsers}
+        />
+      )}
+      {showUserProfilePopup && (
+        <UserProfilePopup
+          isOpen={showUserProfilePopup}
+          onClose={() => setShowUserProfilePopup(false)}
+          user={currentUser}
+          onLogout={handleLogout}
+          onChangePassword={(newPassword) => console.log('Change password:', newPassword)}
+        />
+      )}
+      {showCreateLinkModal && (
+        <CreateLinkModal
+          onClose={() => setShowCreateLinkModal(false)}
+          onCreateLink={handleCreateLink}
+          files={[]} // Pass your files array here
+        />
+      )}
+      {showTagCreationPopup && (
+        <TagCreationPopup
+          onClose={() => setShowTagCreationPopup(false)}
+          onCreateTag={handleCreateTag}
+        />
+      )}
     </aside>
   );
 };

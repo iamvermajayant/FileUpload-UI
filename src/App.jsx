@@ -7,6 +7,7 @@ import DashboardPage from "./components/Dashboard/pages/Dashboard";
 import SignupPage from "./components/Auth/SignupPage";
 import EmailVerificationCard from "./components/Auth/EmailVerificationCard";
 import EmailVerified from "./components/Auth/EmailVerified";
+import AuthWrapper from "./components/Auth/AuthWrapper.jsx";
 
 function App() {
   return (

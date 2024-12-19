@@ -1,5 +1,13 @@
 import React from 'react';
-import { FaFileAlt, FaFilePdf, FaFileWord, FaFileExcel, FaFilePowerpoint, FaImage, FaFile } from 'react-icons/fa';
+import {
+  FaFileAlt,
+  FaFilePdf,
+  FaFileWord,
+  FaFileExcel,
+  FaFilePowerpoint,
+  FaImage,
+  FaFile,
+} from 'react-icons/fa';
 
 const getFileIcon = (fileType) => {
   switch (fileType) {
@@ -18,15 +26,26 @@ const getFileIcon = (fileType) => {
 };
 
 const FilePreviewPopup = ({ file, onConfirm, onCancel }) => {
+  const previewContainerStyle = {
+    width: '700px',
+    height: '450px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '1px solid #ccc',
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+  };
+
   const getFilePreview = () => {
     switch (file.type) {
       case 'application/pdf':
+      case 'text/plain':
         return (
           <iframe
             src={URL.createObjectURL(file)}
             title={file.name}
-            width="100%"
-            height="350px"
+            style={previewContainerStyle}
           />
         );
       case 'application/msword':
@@ -36,10 +55,12 @@ const FilePreviewPopup = ({ file, onConfirm, onCancel }) => {
       case 'application/vnd.ms-powerpoint':
       case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
         return (
-          <div className="flex flex-col items-center justify-center h-96">
+          <div style={previewContainerStyle} className="flex flex-col">
             <div className="text-4xl mb-4">{getFileIcon(file.type)}</div>
             <p className="text-lg font-semibold mb-2">{file.name}</p>
-            <p className="text-sm text-gray-500">Preview not available for this file type.</p>
+            <p className="text-sm text-gray-500">
+              Preview not available for this file type.
+            </p>
             <a
               href={URL.createObjectURL(file)}
               download={file.name}
@@ -49,24 +70,24 @@ const FilePreviewPopup = ({ file, onConfirm, onCancel }) => {
             </a>
           </div>
         );
-      case 'text/plain':
-        return (
-          <iframe
-            src={URL.createObjectURL(file)}
-            title={file.name}
-            width="100%"
-            height="500px"
-          />
-        );
       default:
         if (file.type.startsWith('image/')) {
-          return <img src={URL.createObjectURL(file)} alt={file.name} className="max-h-96 max-w-full object-contain" />;
+          return (
+            <img
+              src={URL.createObjectURL(file)}
+              alt={file.name}
+              style={previewContainerStyle}
+              className="object-contain"
+            />
+          );
         }
         return (
-          <div className="flex flex-col items-center justify-center h-96">
+          <div style={previewContainerStyle} className="flex flex-col">
             <div className="text-4xl mb-4">{getFileIcon(file.type)}</div>
             <p className="text-lg font-semibold mb-2">{file.name}</p>
-            <p className="text-sm text-gray-500">Preview not available for this file type.</p>
+            <p className="text-sm text-gray-500">
+              Preview not available for this file type.
+            </p>
           </div>
         );
     }
@@ -75,12 +96,16 @@ const FilePreviewPopup = ({ file, onConfirm, onCancel }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-slate-200 dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-3xl w-auto">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">File Preview</h3>
-        <div className="mb-4">
-          {getFilePreview()}
-        </div>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">File Name: {file.name}</p>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">File Size: {(file.size / 1024 / 1024).toFixed(2)} MB</p>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          File Preview
+        </h3>
+        <div className="mb-4">{getFilePreview()}</div>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+          File Name: {file.name}
+        </p>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+          File Size: {(file.size / 1024 / 1024).toFixed(2)} MB
+        </p>
         <div className="flex justify-end space-x-2">
           <button
             onClick={onCancel}
@@ -101,4 +126,3 @@ const FilePreviewPopup = ({ file, onConfirm, onCancel }) => {
 };
 
 export default FilePreviewPopup;
-

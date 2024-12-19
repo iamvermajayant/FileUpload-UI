@@ -6,7 +6,7 @@ const DashboardHeader = ({ toggleSidebar }) => {
     <header className="py-2 px-10 mt-4">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-          Admin Dashboard
+          Super-admin Dashboard
         </h1>
         <button
           onClick={toggleSidebar}

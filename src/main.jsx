@@ -7,10 +7,10 @@ import { BrowserRouter } from "react-router-dom";
 
 createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-    <AuthWrapper>
+    {/* <AuthWrapper> */}
       <ThemeProvider>
         <App />
       </ThemeProvider>
-    </AuthWrapper>
+    {/* </AuthWrapper> */}
   </BrowserRouter>
 );
