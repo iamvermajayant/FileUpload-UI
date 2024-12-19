@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FaTh, FaList, FaDownload, FaEdit, FaTrash, FaEllipsisV, FaEye } from 'react-icons/fa';
 import { Menu, Transition } from '@headlessui/react';
 import { getFileIcon, formatFileSize } from '../utils/fileHelpers';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchFiles } from '../../../store/slices/fileUploadSlice';
 
 const FileList = ({
   files,
@@ -19,6 +21,27 @@ const FileList = ({
     file.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const dispatch = useDispatch();
+  const { Allfiles, fetchStatus, error } = useSelector((state) => state.fileUpload);
+
+
+  useEffect(() => {
+    dispatch(fetchFiles({ page: 1, perPage: 10, sortOrder: "asc" }));
+  }, [dispatch]);
+
+  if (fetchStatus === "loading") {
+    return <div>Loading files...</div>;
+  }
+
+  if (fetchStatus === "failed") {
+    return <div>Error: {error}</div>;
+  }
+
+  if (fetchStatus === "succeeded") {
+    console.log(Allfiles)
+  }
+  
+
   return (
     <>
       <div className="flex justify-between items-center mt-2 mb-2">
@@ -32,7 +55,7 @@ const FileList = ({
       </div>
       {isListView ? (
         <ListViewFiles
-          files={filteredFiles}
+          Allfiles={Allfiles}
           handleDownload={handleDownload}
           handleRenameSelectedFile={handleRenameSelectedFile}
           handleDelete={handleDelete}
@@ -40,7 +63,7 @@ const FileList = ({
         />
       ) : (
         <GridViewFiles
-          files={filteredFiles}
+          Allfiles={Allfiles}
           handleDownload={handleDownload}
           handleRenameSelectedFile={handleRenameSelectedFile}
           handleDelete={handleDelete}
@@ -53,7 +76,7 @@ const FileList = ({
   );
 };
 
-const ListViewFiles = ({ files, handleDownload, handleRenameSelectedFile, handleDelete, handlePreview }) => (
+const ListViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, handleDelete, handlePreview }) => (
   <div className="mt-0 overflow-x-auto">
     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
       <thead className="bg-gray-50 dark:bg-gray-800">
@@ -73,7 +96,7 @@ const ListViewFiles = ({ files, handleDownload, handleRenameSelectedFile, handle
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
-        {files.map((file) => (
+        {Allfiles?.map((file) => (
           <tr key={file.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             <td className="px-6 py-4 whitespace-nowrap">
               <div className="flex items-center">
@@ -126,9 +149,9 @@ const ListViewFiles = ({ files, handleDownload, handleRenameSelectedFile, handle
   </div>
 );
 
-const GridViewFiles = ({ files, handleDownload, handleRenameSelectedFile, handleDelete, selectedFiles, handleSelectFile, handlePreview }) => (
+const GridViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, handleDelete, selectedFiles, handleSelectFile, handlePreview }) => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-0">
-    {files.map((file) => (
+    {Allfiles?.map((file) => (
       <div
         key={file.id}
         className="relative bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-transform duration-200 ease-in-out transform hover:scale-105"
