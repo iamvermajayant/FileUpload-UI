@@ -2,6 +2,7 @@ import React, { useState } from 'react'; // Import React and the useState hook t
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesomeIcon component to display icons
 import { faTimes } from '@fortawesome/free-solid-svg-icons'; // Import the 'Times' (close) icon
 import axios from 'axios'; // Import axios for making HTTP requests
+import { userRequest } from '../../../utils/apiClient';
 
 const TagCreationPopup = ({ onClose, onCreateTag }) => { // Define the TagCreationPopup component, accepts onClose and onCreateTag props
   const [formData, setFormData] = useState({ // Initialize state for form fields
@@ -28,7 +29,7 @@ const TagCreationPopup = ({ onClose, onCreateTag }) => { // Define the TagCreati
     setError(null); // Clear any previous errors
 
     try {
-      const response = await axios.post('http://localhost:8000/api/tags/create', formData); // Send POST request to create a tag with form data
+      const response = await userRequest.post('http://localhost:8000/api/tags/create', formData); // Send POST request to create a tag with form data
       onCreateTag(response.data); // Pass the newly created tag data to the parent component
       onClose(); // Close the popup once the tag is created successfully
     } catch (err) { // Catch any errors during the API request

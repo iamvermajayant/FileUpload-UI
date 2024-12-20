@@ -262,6 +262,8 @@ import React, { useEffect, useState } from 'react';
 import { FaTh, FaList, FaDownload, FaEdit, FaTrash, FaEllipsisV } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFiles } from '../../../store/slices/fileUploadSlice';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 const FileList = ({ isListView, toggleView, handleDownload, handleRenameSelectedFile, handleDelete }) => {
   const dispatch = useDispatch();
@@ -310,13 +312,13 @@ const FileList = ({ isListView, toggleView, handleDownload, handleRenameSelected
               className="w-5 h-5 text-gray-400"
             />
           </span>
-          <input
+          {/* <input
             type="text"
             className="py-2 pl-10 pr-4 text-gray-700 bg-white border rounded-md dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring"
             placeholder="Search"
             value={searchQuery} // Bind the input value to searchQuery
             onChange={(e) => setSearchQuery(e.target.value)} // Update searchQuery state on input change
-          />
+          /> */}
         </div>
         {/* File View Toggle Button */}
         <button
