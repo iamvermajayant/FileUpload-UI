@@ -1,7 +1,7 @@
 import React, { useState } from 'react'; // Import necessary React hooks for managing component state
 import { FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa'; // Import icons from react-icons
 
-const CreateLinkModal = ({ files, onClose, onCreateLink }) => {
+const CreateLinkModal = ({ Allfiles, onClose, onCreateLink }) => {
   // State hooks for managing modal fields
   const [selectedFile, setSelectedFile] = useState(null); // Holds the selected file ID
   const [expirationDate, setExpirationDate] = useState(''); // Holds the expiration date value
