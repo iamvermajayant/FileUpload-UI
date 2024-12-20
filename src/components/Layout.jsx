@@ -1,15 +1,17 @@
 import React, { useContext, useState, useEffect } from 'react';
-import Footer from './LandingPage/Footer'; // Update the path to match your project structure
-import { ThemeContext } from './ThemeContext'; // Import the ThemeContext
+import Footer from './LandingPage/Footer';
+import { ThemeContext } from './ThemeContext';
+import Chatbot from './Chatbot/Chatbot';
 import '../components/style.css';
-function Layout({ children }) {
-  const { theme, toggleTheme } = useContext(ThemeContext); // Access theme and toggleTheme from context
-  const [isAtBottom, setIsAtBottom] = useState(false);
 
-  // Function to handle scroll position
+function Layout({ children }) {
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  const [isAtBottom, setIsAtBottom] = useState(false);
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+
   const handleScroll = () => {
     const bottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight;
-    setIsAtBottom(bottom); // Set state based on whether the user is at the bottom
+    setIsAtBottom(bottom);
   };
 
   useEffect(() => {
@@ -25,32 +27,42 @@ function Layout({ children }) {
     backgroundPosition: 'center',
   } : {};
 
-  // Conditional gradient background for light and dark mode
   const backgroundGradient = theme === 'dark'
-    ? 'bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900' // Dark mode gradient
-    : 'bg-gradient-to-r from-slate-200 via-slate-100 to-salte-200'; // Light mode gradient (blue)
+    ? 'bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900'
+    : 'bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200';
 
   return (
-    <div 
+    <div
       className={`min-h-screen flex flex-col ${backgroundGradient} ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
       style={lightModeBackgroundImage}
     >
-      {/* Main Content */}
       <main className="flex-grow">{children}</main>
-
-      {/* Footer */}
       <Footer />
 
-      {/* Dark/Light Mode Button */}
-      {/* Button visibility changes based on scroll position */}
       {!isAtBottom && (
-        <button
-          onClick={toggleTheme}
-          className={`fixed bottom-8 right-8 p-3 rounded-full shadow-lg transition-all ${theme === 'dark' ? 'bg-gray-100 text-gray-900' : 'bg-gray-900 text-white'}`}
-        >
-          {theme === 'light' ? '🌙' : '☀️'}
-        </button>
+        <div className="fixed bottom-8 right-8 flex space-x-3">
+          <button
+            onClick={() => setIsChatbotOpen(!isChatbotOpen)}
+            className={`p-3 text-lg rounded-full shadow-lg transition-all ${
+              theme === 'dark' ? 'bg-gray-100 text-gray-900' : 'bg-gray-900 text-white'
+            }`}
+            aria-label="Toggle chatbot"
+          >
+            🤖 
+          </button>
+          <button
+            onClick={toggleTheme}
+            className={`p-3 text-lg rounded-full shadow-lg transition-all ${
+              theme === 'dark' ? 'bg-gray-100 text-gray-900' : 'bg-gray-900 text-white'
+            }`}
+            aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+        </div>
       )}
+
+      {isChatbotOpen && <Chatbot onClose={() => setIsChatbotOpen(false)} />}
     </div>
   );
 }

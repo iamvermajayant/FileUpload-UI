@@ -322,7 +322,7 @@ const getFileIcon = (fileType) => {
     case "application/pdf":
       return <FaFilePdf className="text-red-500" />;
     default:
-      return <FaFile className="text-gray-500" />;
+      return <FaFile className="text-gray-500" />; // Default icon for unsupported file types
   }
 };
 
@@ -428,6 +428,7 @@ const FilePreviewPopup = ({ files, onCancel }) => {
   };
 
   return (
+    // Create a fixed modal overlay with centered content for the popup
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -481,5 +482,4 @@ const FilePreviewPopup = ({ files, onCancel }) => {
   );
 };
 
-export default FilePreviewPopup;
-
+export default FilePreviewPopup; // Export the FilePreviewPopup component for use in other parts of the app

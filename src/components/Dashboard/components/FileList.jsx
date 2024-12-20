@@ -300,15 +300,34 @@ const FileList = ({ isListView, toggleView, handleDownload, handleRenameSelected
 
   return (
     <>
-      <div className="flex justify-between items-center mt-2 mb-2">
-        <div></div>
+      {/* Search Bar and View Toggle Button */}
+      <div className="relative mt-6 mb-4 flex items-center justify-between space-x-4">
+        {/* Search Bar */}
+        <div className="flex-grow relative">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+            <FontAwesomeIcon
+              icon={faSearch}
+              className="w-5 h-5 text-gray-400"
+            />
+          </span>
+          <input
+            type="text"
+            className="py-2 pl-10 pr-4 text-gray-700 bg-white border rounded-md dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:ring-opacity-40 focus:outline-none focus:ring"
+            placeholder="Search"
+            value={searchQuery} // Bind the input value to searchQuery
+            onChange={(e) => setSearchQuery(e.target.value)} // Update searchQuery state on input change
+          />
+        </div>
+        {/* File View Toggle Button */}
         <button
-          onClick={toggleView}
+          onClick={toggleView} // Toggle between list view and grid view
           className="p-3 text-xl rounded-md hover:text-gray-500 transition-colors"
         >
-          {isListView ? <FaTh /> : <FaList />}
+          {isListView ? <FaTh /> : <FaList />} {/*Toggle icon based on view type*/}
         </button>
       </div>
+
+      {/* Display files based on selected view */}
       {isListView ? (
         <ListViewFiles
           Allfiles={Allfiles}
@@ -336,21 +355,15 @@ const FileList = ({ isListView, toggleView, handleDownload, handleRenameSelected
 
 const ListViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, handleDelete }) => (
   <div className="mt-0 overflow-x-auto">
+    {/* Table for displaying files in list view */}
     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
       <thead className="bg-gray-50 dark:bg-gray-800">
         <tr>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-            Name
-          </th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-            Size
-          </th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-            Type
-          </th>
-          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-            Actions
-          </th>
+          {/* Table Headers */}
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Size</th>
+          {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th> */}
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
@@ -374,6 +387,7 @@ const ListViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, han
               </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-32">
+              {/* Action buttons: Download, Rename, Delete */}
               <button
                 onClick={() => handleDownload(file)}
                 className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2"
@@ -439,11 +453,12 @@ const GridViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, han
         key={file.id}
         className="relative bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-transform duration-200 ease-in-out transform hover:scale-105"
       >
+        {/* File selection checkbox */}
         <div className="absolute top-2 left-2 z-10">
           {/* <input
             type="checkbox"
-            checked={selectedFiles.includes(file.id)}
-            onChange={() => handleSelectFile(file.id)}
+            checked={selectedFiles.includes(file.id)} // Check if the file is selected
+            onChange={() => handleSelectFile(file.id)} // Handle file selection
             className="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
           /> */}
         </div>
@@ -456,20 +471,19 @@ const GridViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, han
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="text-4xl">
-                {getFileIcon(file.type)}
-              </div>
+              <div className="text-4xl">{getFileIcon(file.type)}</div> 
             )}
           </div>
           <div className="text-center">
             <p className="text-sm font-medium text-gray-800 dark:text-white truncate mb-1">
-              {file.name}
+              {file.name} {/* Display file name */}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              {formatFileSize(file.size)}
+              {formatFileSize(file.size)} {/* Display formatted file size */}
             </p>
           </div>
         </div>
+        {/* Dropdown menu for additional actions */}
         <div className="absolute top-2 right-2">
           <Menu as="div" className="relative inline-block text-left">
             <div>
@@ -494,7 +508,7 @@ const GridViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, han
                         className={`${
                           active ? "bg-gray-100 text-gray-900" : "text-gray-700"
                         } flex w-full items-center px-4 py-2 text-sm`}
-                        onClick={() => handleDownload(file)}
+                        onClick={() => handleDownload(file)} // Handle file download from menu
                       >
                         <FaDownload className="w-4 h-4 mr-3" />
                         Download
@@ -507,7 +521,7 @@ const GridViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, han
                         className={`${
                           active ? "bg-gray-100 text-gray-900" : "text-gray-700"
                         } flex w-full items-center px-4 py-2 text-sm`}
-                        onClick={() => handleRenameSelectedFile(file)}
+                        onClick={() => handleRenameSelectedFile(file)} // Handle file renaming from menu
                       >
                         <FaEdit className="w-4 h-4 mr-3" />
                         Rename
@@ -520,7 +534,7 @@ const GridViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, han
                         className={`${
                           active ? "bg-gray-100 text-gray-900" : "text-gray-700"
                         } flex w-full items-center px-4 py-2 text-sm`}
-                        onClick={() => handleDelete(file.id)}
+                        onClick={() => handleDelete(file.id)} // Handle file deletion from menu
                       >
                         <FaTrash className="w-4 h-4 mr-3" />
                         Delete

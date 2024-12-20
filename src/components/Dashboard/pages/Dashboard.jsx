@@ -1,19 +1,21 @@
-import React, { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import Layout from "../../Layout";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import Sidebar from "../components/Sidebar";
-import FileList from "../components/FileList";
-import DashboardHeader from "../components/DashboardHeader";
-import DashboardStats from "../components/DashboardStats";
-import UploadArea from "../components/UploadArea";
-import ManageLinksModal from "../components/manage-links-modal";
-import CreateLinkModal from "../components/create-link-modal";
-import FilePreviewPopup from "../components/file-preview-popup";
-import RenameModal from "../components/RenameModal";
-import { v4 as uuidv4 } from "uuid";
-import { ThemeProvider } from 'next-themes';
+import React, { useState, useCallback } from "react"; // Importing React hooks for state and callbacks
+import { useNavigate } from "react-router-dom"; // Importing for navigation
+import Layout from "../../Layout"; // Importing layout component
+import { ToastContainer, toast } from "react-toastify"; // For showing notifications
+import "react-toastify/dist/ReactToastify.css"; // Importing toast CSS
+import Sidebar from "../components/Sidebar"; // Sidebar component
+import FileList from "../components/FileList"; // File list component
+import DashboardHeader from "../components/DashboardHeader"; // Dashboard header component
+import DashboardStats from "../components/DashboardStats"; // Dashboard stats component
+import UploadArea from "../components/UploadArea"; // File upload area component
+import ManageLinksModal from "../components/manage-links-modal"; // Modal for managing links
+import CreateLinkModal from "../components/create-link-modal"; // Modal for creating links
+import FilePreviewPopup from "../components/file-preview-popup"; // Popup for file preview
+import RenameModal from "../components/RenameModal"; // Modal for renaming files
+import AllUsersContent from "./AllUsersPage"; // Page for listing all users
+import { v4 as uuidv4 } from "uuid"; // For generating unique IDs
+import { ThemeProvider } from 'next-themes'; // For theming support
+import ManageTagsContent from './ManageTagsPage';
 import { useSelector } from "react-redux";
 import { deleteFile, fetchFiles } from "../../../store/slices/fileUploadSlice";
 import { useDispatch } from 'react-redux';
@@ -52,20 +54,23 @@ function DashboardPage() {
   const Allfiles = useSelector((state) => state.fileUpload.Allfiles);
   const fetchStatus = useSelector((state) => state.fileUpload.fetchStatus);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [newFileName, setNewFileName] = useState("");
-  const [isRenaming, setIsRenaming] = useState(false);
-  const [fileToRename, setFileToRename] = useState(null);
-  const [selectedFiles, setSelectedFiles] = useState([]);
+  // Other state variables
+  const [searchQuery, setSearchQuery] = useState(""); // For search input
+  const [newFileName, setNewFileName] = useState(""); // For storing new file name during renaming
+  const [isRenaming, setIsRenaming] = useState(false); // Boolean to handle renaming state
+  const [fileToRename, setFileToRename] = useState(null); // File to be renamed
+  const [selectedFiles, setSelectedFiles] = useState([]); // Files that are selected
   const [fileToUpload, setFileToUpload] = useState([]);
-  const [filesToUpload, setFilesToUpload] = useState([]);
-  const [isListView, setIsListView] = useState(false);
-  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
-  const [fileToPreview, setFileToPreview] = useState(null);
-  const [showManageLinksModal, setShowManageLinksModal] = useState(false);
-  const [showCreateLinkModal, setShowCreateLinkModal] = useState(false);
-  const [links, setLinks] = useState([]);
-  const dispatch = useDispatch();
+  const [filesToUpload, setFilesToUpload] = useState([]); // File being uploaded
+  const [isListView, setIsListView] = useState(false); // Boolean for toggling between list and grid view
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true); // Boolean for showing/hiding sidebar
+  const [fileToPreview, setFileToPreview] = useState(null); // For file preview popup
+  const [showManageLinksModal, setShowManageLinksModal] = useState(false); // To show manage links modal
+  const [showCreateLinkModal, setShowCreateLinkModal] = useState(false); // To show create link modal
+  const [links, setLinks] = useState([]); // State to manage links
+  const [currentView, setCurrentView] = useState("dashboard"); // Current view in the dashboard (either 'dashboard' or 'users')
+
+  // Function to handle file deletion  const dispatch = useDispatch();
  
 
   const handleDelete = (fileId) => {
@@ -76,8 +81,7 @@ function DashboardPage() {
     }
   };
 
-  
-
+  // Function to handle bulk file deletion
   const handleBulkDelete = () => {
     if (selectedFiles.length > 0) {
       if (
@@ -90,27 +94,31 @@ function DashboardPage() {
         toast.success("Selected files deleted successfully!");
       }
     } else {
-      toast.error("No files selected for deletion");
+      toast.error("No files selected for deletion"); // Show error if no files selected
     }
   };
 
+  // Function to navigate to the user profile page
   const handleUserProfile = () => {
     navigate("/user-profile");
   };
 
+  // Function to log out and navigate to home
   const handleLogout = () => {
-    navigate("/");
+    navigate("/"); // Navigate to home page
   };
 
+  // Function to open the create link modal
   const handleCreateLink = () => {
-    setShowCreateLinkModal(true);
+    setShowCreateLinkModal(true); // Show create link modal
   };
 
+  // Function to create a link for a file
   const createLink = (fileId, expiration, password, viewLimit) => {
     const file = Allfiles.find((f) => f.id === fileId);
     if (file) {
       const newLink = {
-        id: uuidv4(),
+        id: uuidv4(), // Generate unique link ID
         fileId: file.id,
         fileName: file.name,
         expiration,
@@ -118,36 +126,40 @@ function DashboardPage() {
         viewLimit: parseInt(viewLimit),
         views: 0,
         downloads: 0,
-        status: "active",
+        status: "active", // Set link status to active
       };
-      setLinks([...links, newLink]);
-      setShowCreateLinkModal(false);
-      toast.success("Link created successfully!");
+      setLinks([...links, newLink]); // Add the new link to the state
+      setShowCreateLinkModal(false); // Close modal
+      toast.success("Link created successfully!"); // Show success message
     }
   };
 
+  // Function to revoke a link by ID
   const revokeLink = (linkId) => {
     setLinks(
       links.map((link) =>
         link.id === linkId ? { ...link, status: "revoked" } : link
-      )
+      ) // Update link status to revoked
     );
   };
 
+  // Function to extend a link (functionality not implemented yet)
   const extendLink = (linkId) => {
-    console.log("Extend link clicked:", linkId);
+    console.log("Extend link clicked:", linkId); // Log link ID
   };
 
+  // Function to open manage links modal
   const handleManageLinks = () => {
-    setShowManageLinksModal(true);
+    setShowManageLinksModal(true); // Show modal
   };
 
+  // Function to handle file download
   const handleDownload = (file) => {
-    const element = document.createElement("a");
-    element.href = file.preview || "#";
-    element.download = file.name;
-    document.body.appendChild(element);
-    element.click();
+    const element = document.createElement("a"); // Create download link element
+    element.href = file.preview || "#"; // Use file preview URL
+    element.download = file.name; // Set download attribute with file name
+    document.body.appendChild(element); // Append element to the document
+    element.click(); // Trigger the download
   };
 
   // const handleUpload = useCallback((acceptedFiles) => {
@@ -159,22 +171,24 @@ function DashboardPage() {
   // }, []);
 
 
+  // Callback to handle file upload (using the useCallback hook for optimization)
   const handleUpload = useCallback((acceptedFiles) => {
     setFilesToUpload((prevFiles) => [...prevFiles, ...acceptedFiles]);
   }, []);
 
   console.log(fileToUpload)
 
+  // Function to confirm and complete the file upload
   const confirmUpload = () => {
     if (fileToUpload) {
       const newFile = {
-        id: Date.now(),
+        id: Date.now(), // Use timestamp as a unique ID
         name: fileToUpload.name,
         size: fileToUpload.size,
         type: fileToUpload.type,
-        tags: [],
-        status: "active",
-        preview: fileToUpload.type.startsWith("image/")
+        tags: [], // No tags initially
+        status: "active", // Set file status to active
+        preview: fileToUpload.type.startsWith("image/") // Generate preview URL if it's an image
           ? URL.createObjectURL(fileToUpload)
           : null,
       };
@@ -184,16 +198,19 @@ function DashboardPage() {
     }
   };
 
+  // Function to cancel the file upload
   const cancelUpload = () => {
-    setFileToUpload(null);
+    setFileToUpload(null); // Clear the fileToUpload state
   };
 
+  // Function to initiate renaming of a selected file
   const handleRenameSelectedFile = (file) => {
-    setFileToRename(file);
-    setNewFileName(file.name);
-    setIsRenaming(true);
+    setFileToRename(file); // Set the file to rename
+    setNewFileName(file.name); // Pre-fill the input with the current file name
+    setIsRenaming(true); // Show renaming modal
   };
 
+  // Function to confirm renaming of a file
   const confirmRename = () => {
     if (fileToRename && newFileName) {
       // setFiles(
@@ -208,33 +225,76 @@ function DashboardPage() {
     }
   };
 
+  // Function to handle file selection for bulk actions
   const handleSelectFile = (fileId) => {
     setSelectedFiles((prevSelectedFiles) => {
       if (prevSelectedFiles.includes(fileId)) {
-        return prevSelectedFiles.filter((id) => id !== fileId);
+        return prevSelectedFiles.filter((id) => id !== fileId); // Deselect file
       } else {
-        return [...prevSelectedFiles, fileId];
+        return [...prevSelectedFiles, fileId]; // Select file
       }
     });
   };
 
+  // Function to toggle between list and grid view
   const toggleView = () => {
-    setIsListView(!isListView);
+    setIsListView(!isListView); // Toggle view
   };
 
+  // Function to toggle the visibility of the sidebar
   const toggleSidebar = () => {
-    setIsSidebarVisible(!isSidebarVisible);
+    setIsSidebarVisible(!isSidebarVisible); // Toggle sidebar visibility
   };
 
+  // Function to preview a file before performing any actions on it
   const handlePreview = (file) => {
-    const fileBlob = new Blob([file], { type: file.type });
-    const fileUrl = URL.createObjectURL(fileBlob);
+    const fileBlob = new Blob([file], { type: file.type }); // Create a Blob object
+    const fileUrl = URL.createObjectURL(fileBlob); // Generate a preview URL
 
     setFileToPreview({
       ...file,
-      preview: fileUrl,
+      preview: fileUrl, // Set file preview state
     });
   };
+
+  // Function to handle view change (either dashboard or all users)
+  const handleViewChange = (view) => {
+    setCurrentView(view); // Change current view state
+  };
+
+  const renderContent = () => {
+    switch (currentView) {
+      case 'allUsers':
+        return <AllUsersContent />;
+      case 'manageTags':
+        return <ManageTagsContent />;
+      default:
+        return (
+          <>
+            <DashboardStats
+              totalFiles={Allfiles.length}
+              totalLinks={links.length}
+              activeFiles={Allfiles.filter((file) => file.status === "active").length}
+              expiredFiles={Allfiles.filter((file) => file.status === "expired").length}
+            />
+            <UploadArea handleUpload={handleUpload} />
+            <FileList
+              files={Allfiles}
+              searchQuery={searchQuery}
+              isListView={isListView}
+              toggleView={toggleView}
+              handleDownload={handleDownload}
+              handleRenameSelectedFile={handleRenameSelectedFile}
+              handleDelete={handleDelete}
+              selectedFiles={selectedFiles}
+              handleSelectFile={handleSelectFile}
+              handlePreview={handlePreview}
+            />
+          </>
+        );
+    }
+  };
+
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
@@ -249,32 +309,16 @@ function DashboardPage() {
             handleBulkDelete={handleBulkDelete}
             handleLogout={handleLogout}
             handleUserProfile={handleUserProfile}
+            onViewChange={handleViewChange}
           />
           <main className="flex-1 flex flex-col overflow-hidden">
             <DashboardHeader toggleSidebar={toggleSidebar} />
             <section className="flex-1 overflow-y-auto p-9">
-              <DashboardStats
-                totalFiles={Allfiles.length}
-                totalLinks={links.length}
-                activeFiles={Allfiles.filter((file) => file.status === "active").length}
-                expiredFiles={Allfiles.filter((file) => file.status === "expired").length}
-              />
-              <UploadArea handleUpload={handleUpload} />
-              <FileList
-                files={Allfiles}
-                searchQuery={searchQuery}
-                isListView={isListView}
-                toggleView={toggleView}
-                handleDownload={handleDownload}
-                handleRenameSelectedFile={handleRenameSelectedFile}
-                handleDelete={handleDelete}
-                selectedFiles={selectedFiles}
-                handleSelectFile={handleSelectFile}
-                handlePreview={handlePreview}
-              />
+              {renderContent()}
             </section>
           </main>
         </div>
+        {/* Modals */}
         {isRenaming && (
           <RenameModal
             newFileName={newFileName}
@@ -300,12 +344,12 @@ function DashboardPage() {
           <FilePreviewPopup
             file={fileToPreview}
             onConfirm={() => {
-              URL.revokeObjectURL(fileToPreview.preview);
-              setFileToPreview(null);
+              URL.revokeObjectURL(fileToPreview.preview); // Revoke preview URL after confirmation
+              setFileToPreview(null); // Clear preview
             }}
             onCancel={() => {
-              URL.revokeObjectURL(fileToPreview.preview);
-              setFileToPreview(null);
+              URL.revokeObjectURL(fileToPreview.preview); // Revoke preview URL on cancel
+              setFileToPreview(null); // Clear preview
             }}
           />
         )} */}
@@ -324,7 +368,7 @@ function DashboardPage() {
             onCreateLink={createLink}
           />
         )}
-        <ToastContainer />
+        <ToastContainer /> {/* Toast notifications container */}
       </Layout>
     </ThemeProvider>
   );

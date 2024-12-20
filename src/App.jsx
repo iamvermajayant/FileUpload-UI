@@ -7,6 +7,10 @@ import DashboardPage from "./components/Dashboard/pages/Dashboard";
 import SignupPage from "./components/Auth/SignupPage";
 import EmailVerificationCard from "./components/Auth/EmailVerificationCard";
 import EmailVerified from "./components/Auth/EmailVerified";
+import AuthWrapper from "./components/Auth/AuthWrapper.jsx";
+import AllUsersPage from "./components/Dashboard/pages/AllUsersPage.jsx";
+import ManageTagsPage from "./components/Dashboard/pages/ManageTagsPage.jsx";
+
 
 function App() {
   return (
@@ -24,6 +28,8 @@ function App() {
         element={<EmailVerificationCard />}
       />
       <Route path="/email-verified" element={<EmailVerified />} />
+      <Route path="/all-users" element={<AllUsersPage />} />
+      <Route path="/manage-tags" element={<ManageTagsPage />} />
     </Routes>
   );
 }
