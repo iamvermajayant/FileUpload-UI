@@ -57,7 +57,8 @@ function DashboardPage() {
   const [isRenaming, setIsRenaming] = useState(false);
   const [fileToRename, setFileToRename] = useState(null);
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [fileToUpload, setFileToUpload] = useState(null);
+  const [fileToUpload, setFileToUpload] = useState([]);
+  const [filesToUpload, setFilesToUpload] = useState([]);
   const [isListView, setIsListView] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const [fileToPreview, setFileToPreview] = useState(null);
@@ -149,11 +150,20 @@ function DashboardPage() {
     element.click();
   };
 
+  // const handleUpload = useCallback((acceptedFiles) => {
+  //   const filesToUpload = acceptedFiles.slice(0, 5);
+
+  //   setFileToUpload(filesToUpload);
+
+  //   console.log(fileToUpload)
+  // }, []);
+
+
   const handleUpload = useCallback((acceptedFiles) => {
-    if (acceptedFiles.length > 0) {
-      setFileToUpload(acceptedFiles[0]);
-    }
+    setFilesToUpload((prevFiles) => [...prevFiles, ...acceptedFiles]);
   }, []);
+
+  console.log(fileToUpload)
 
   const confirmUpload = () => {
     if (fileToUpload) {
@@ -273,14 +283,20 @@ function DashboardPage() {
             setIsRenaming={setIsRenaming}
           />
         )}
-        {fileToUpload && (
+        {filesToUpload.length > 0 && (
+        <FilePreviewPopup
+          files={filesToUpload}
+          onCancel={() => setFilesToUpload([])}
+        />
+      )}
+        {/* {fileToUpload && (
           <FilePreviewPopup
             file={fileToUpload}
             onConfirm={confirmUpload}
             onCancel={cancelUpload}
           />
-        )}
-        {fileToPreview && (
+        )} */}
+        {/* {fileToPreview && (
           <FilePreviewPopup
             file={fileToPreview}
             onConfirm={() => {
@@ -292,7 +308,7 @@ function DashboardPage() {
               setFileToPreview(null);
             }}
           />
-        )}
+        )} */}
         {showManageLinksModal && (
           <ManageLinksModal
             links={links}

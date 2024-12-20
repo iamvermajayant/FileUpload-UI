@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 
-const CreateLinkModal = ({ files, onClose, onCreateLink }) => {
+const CreateLinkModal = ({ Allfiles, onClose, onCreateLink }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [expirationDate, setExpirationDate] = useState('');
   const [expirationTime, setExpirationTime] = useState('');
@@ -36,8 +36,8 @@ const CreateLinkModal = ({ files, onClose, onCreateLink }) => {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-gray-900 dark:text-gray-100 dark:bg-gray-700"
             >
               <option value="">Select a file</option>
-              {files.map((file) => (
-                <option key={file.id} value={file.id}>{file.name}</option>
+              {Allfiles.map((file) => (
+                <option key={file._id} value={file.id}>{file._id}</option>
               ))}
             </select>
           </div>
