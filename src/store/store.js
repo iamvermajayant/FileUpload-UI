@@ -4,6 +4,7 @@ import fileUploadReducer from "./slices/fileUploadSlice";
 const store = configureStore({
   reducer: {
     fileUpload: fileUploadReducer,
+    links: linkReducer,
   },
 });
 

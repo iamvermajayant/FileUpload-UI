@@ -71,6 +71,8 @@ function DashboardPage() {
   const [currentView, setCurrentView] = useState("dashboard"); // Current view in the dashboard (either 'dashboard' or 'users')
 
   // Function to handle file deletion  const dispatch = useDispatch();
+
+  const dispatch = useDispatch();
  
 
   const handleDelete = (fileId) => {
@@ -115,23 +117,23 @@ function DashboardPage() {
 
   // Function to create a link for a file
   const createLink = (fileId, expiration, password, viewLimit) => {
-    const file = Allfiles.find((f) => f.id === fileId);
-    if (file) {
-      const newLink = {
-        id: uuidv4(), // Generate unique link ID
-        fileId: file.id,
-        fileName: file.name,
-        expiration,
-        password,
-        viewLimit: parseInt(viewLimit),
-        views: 0,
-        downloads: 0,
-        status: "active", // Set link status to active
-      };
-      setLinks([...links, newLink]); // Add the new link to the state
-      setShowCreateLinkModal(false); // Close modal
-      toast.success("Link created successfully!"); // Show success message
-    }
+    // const file = Allfiles.find((f) => f.id === fileId);
+    // if (file) {
+    //   const newLink = {
+    //     id: uuidv4(), // Generate unique link ID
+    //     fileId: file.id,
+    //     fileName: file.name,
+    //     expiration,
+    //     password,
+    //     viewLimit: parseInt(viewLimit),
+    //     views: 0,
+    //     downloads: 0,
+    //     status: "active", // Set link status to active
+    //   };
+    //   setLinks([...links, newLink]); // Add the new link to the state
+    //   setShowCreateLinkModal(false); // Close modal
+    //   toast.success("Link created successfully!"); // Show success message
+    // }
   };
 
   // Function to revoke a link by ID

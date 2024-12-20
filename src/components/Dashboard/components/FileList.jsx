@@ -259,16 +259,18 @@ import { getFileIcon, formatFileSize } from '../utils/fileHelpers';
 
 //Latest Code 
 import React, { useEffect, useState } from 'react';
-import { FaTh, FaList, FaDownload, FaEdit, FaTrash, FaEllipsisV } from 'react-icons/fa';
+import { FaTh, FaList, FaDownload, FaEdit, FaTrash, FaEllipsisV ,FaLink} from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFiles } from '../../../store/slices/fileUploadSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import CreateLinkModal from './create-link-modal';
 
 const FileList = ({ isListView, toggleView, handleDownload, handleRenameSelectedFile, handleDelete }) => {
   const dispatch = useDispatch();
   const { Allfiles,status, fetchStatus, error, totalPages } = useSelector((state) => state.fileUpload);
-
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const perPage = 8;
 
@@ -286,6 +288,15 @@ const FileList = ({ isListView, toggleView, handleDownload, handleRenameSelected
     if (currentPage > 1) {
       setCurrentPage((prev) => prev - 1);
     }
+  };
+  const handleOpenLinkModal = (file, groupId) => {
+    setSelectedFile({ ...file, _id: groupId });
+    setShowLinkModal(true);
+  };
+
+  const handleCreateLink = (fileId, expiration, password, viewLimit) => {
+    // Implement your link creation logic here
+    console.log('Creating link:', { fileId, expiration, password, viewLimit });
   };
 
   if (fetchStatus === 'loading') {
@@ -336,6 +347,7 @@ const FileList = ({ isListView, toggleView, handleDownload, handleRenameSelected
           handleDownload={handleDownload}
           handleRenameSelectedFile={handleRenameSelectedFile}
           handleDelete={handleDelete}
+          handleOpenLinkModal={handleOpenLinkModal}
         />
       ) : (
         <GridViewFiles
@@ -343,6 +355,14 @@ const FileList = ({ isListView, toggleView, handleDownload, handleRenameSelected
           handleDownload={handleDownload}
           handleRenameSelectedFile={handleRenameSelectedFile}
           handleDelete={handleDelete}
+        />
+      )}
+      {showLinkModal && (
+        <CreateLinkModal
+          Allfiles={Allfiles}
+          preselectedFile={selectedFile}
+          onClose={() => setShowLinkModal(false)}
+          onCreateLink={handleCreateLink}
         />
       )}
       <Pagination
@@ -453,7 +473,7 @@ const FileList = ({ isListView, toggleView, handleDownload, handleRenameSelected
 
 
 
-const ListViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, handleDelete }) => (
+const ListViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, handleDelete ,handleOpenLinkModal }) => (
   <div className="mt-0 overflow-x-auto">
     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
       <thead className="bg-gray-50 dark:bg-gray-800">
@@ -499,6 +519,13 @@ const ListViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, han
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <button
+                    onClick={() => handleOpenLinkModal(file, fileGroup._id)}
+                    className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-2"
+                    title="Create Link"
+                  >
+                    <FaLink />
+                  </button>
                   <button
                     onClick={() => handleDownload(file, fileGroup._id)}
                     className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2"
