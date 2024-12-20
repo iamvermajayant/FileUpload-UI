@@ -355,66 +355,66 @@ const FileList = ({ isListView, toggleView, handleDownload, handleRenameSelected
   );
 };
 
-const ListViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, handleDelete }) => (
-  <div className="mt-0 overflow-x-auto">
-    {/* Table for displaying files in list view */}
-    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-      <thead className="bg-gray-50 dark:bg-gray-800">
-        <tr>
-          {/* Table Headers */}
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Size</th>
-          {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th> */}
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
-        </tr>
-      </thead>
-      <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
-        {Allfiles?.map((file) => (
-          <tr key={file.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            <td className="px-6 py-4 whitespace-nowrap">
-              <div className="flex items-center">
-                <div className="text-sm font-medium text-gray-900 dark:text-white max-w-xs truncate">
-                  {file.files.map((file) => file.original_filename)}
-                </div>
-              </div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap w-32">
-              <div className="text-sm text-gray-500 dark:text-gray-300">
-              {file.files.map((file) => file.file_size)}KB
-              </div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap w-48">
-              <div className="text-sm text-gray-500 dark:text-gray-300">
-              {file.files.map((file) => file.file_extension)}
-              </div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-32">
-              {/* Action buttons: Download, Rename, Delete */}
-              <button
-                onClick={() => handleDownload(file)}
-                className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2"
-              >
-                <FaDownload />
-              </button>
-              <button
-                onClick={() => handleRenameSelectedFile(file)}
-                className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-2"
-              >
-                <FaEdit />
-              </button>
-              <button
-                onClick={() => handleDelete(file._id)}
-                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-2"
-              >
-                <FaTrash />
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
+// const ListViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, handleDelete }) => (
+//   <div className="mt-0 overflow-x-auto">
+//     {/* Table for displaying files in list view */}
+//     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+//       <thead className="bg-gray-50 dark:bg-gray-800">
+//         <tr>
+//           {/* Table Headers */}
+//           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+//           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Size</th>
+//           {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th> */}
+//           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+//         </tr>
+//       </thead>
+//       <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+//         {Allfiles?.map((file) => (
+//           <tr key={file.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+//             <td className="px-6 py-4 whitespace-nowrap">
+//               <div className="flex items-center">
+//                 <div className="text-sm font-medium text-gray-900 dark:text-white max-w-xs truncate">
+//                   {file.files.map((file) => file.original_filename)}
+//                 </div>
+//               </div>
+//             </td>
+//             <td className="px-6 py-4 whitespace-nowrap w-32">
+//               <div className="text-sm text-gray-500 dark:text-gray-300">
+//               {file.files.map((file) => file.file_size)}KB
+//               </div>
+//             </td>
+//             <td className="px-6 py-4 whitespace-nowrap w-48">
+//               <div className="text-sm text-gray-500 dark:text-gray-300">
+//               {file.files.map((file) => file.file_extension)}
+//               </div>
+//             </td>
+//             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-32">
+//               {/* Action buttons: Download, Rename, Delete */}
+//               <button
+//                 onClick={() => handleDownload(file)}
+//                 className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2"
+//               >
+//                 <FaDownload />
+//               </button>
+//               <button
+//                 onClick={() => handleRenameSelectedFile(file)}
+//                 className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-2"
+//               >
+//                 <FaEdit />
+//               </button>
+//               <button
+//                 onClick={() => handleDelete(file._id)}
+//                 className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 mr-2"
+//               >
+//                 <FaTrash />
+//               </button>
+//             </td>
+//           </tr>
+//         ))}
+//       </tbody>
+//     </table>
+//   </div>
+// );
 
 // const GridViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, handleDelete }) => (
 //   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
@@ -447,6 +447,89 @@ const ListViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, han
 //     ))}
 //   </div>
 // );
+
+
+
+
+
+
+const ListViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, handleDelete }) => (
+  <div className="mt-0 overflow-x-auto">
+    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      <thead className="bg-gray-50 dark:bg-gray-800">
+        <tr>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Group ID</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">File Name</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Size</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Upload Time</th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+        </tr>
+      </thead>
+      <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+        {Allfiles?.map((fileGroup) => (
+          <React.Fragment key={fileGroup._id}>
+            {fileGroup.files.map((file, fileIndex) => (
+              <tr key={`${fileGroup._id}-${fileIndex}`} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                {fileIndex === 0 && (
+                  <td rowSpan={fileGroup.files.length} className="px-6 py-4 whitespace-nowrap align-top">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                      {fileGroup.group_id}
+                    </div>
+                  </td>
+                )}
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    {file.original_filename}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-500 dark:text-gray-300">
+                    {(file.file_size / 1024).toFixed(2)} KB
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-500 dark:text-gray-300">
+                    {file.file_extension.toUpperCase()}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-500 dark:text-gray-300">
+                    {new Date(fileGroup.upload_time).toLocaleString()}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <button
+                    onClick={() => handleDownload(file, fileGroup._id)}
+                    className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 mr-2"
+                  >
+                    <FaDownload />
+                  </button>
+                  <button
+                    onClick={() => handleRenameSelectedFile(file, fileGroup._id)}
+                    className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 mr-2"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(fileGroup._id, file.saved_filename)}
+                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                  >
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+
+
+
 
 const GridViewFiles = ({ Allfiles, handleDownload, handleRenameSelectedFile, handleDelete, selectedFiles, handleSelectFile, handlePreview }) => (
   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-0">
