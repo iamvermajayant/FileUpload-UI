@@ -100,7 +100,7 @@ const ListViewFiles = ({
           {/* Table Headers */}
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Size</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+          {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th> */}
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
         </tr>
       </thead>
@@ -126,30 +126,26 @@ const ListViewFiles = ({
                 {formatFileSize(file.size)} {/* Display formatted file size */}
               </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap w-48">
-              <div className="text-sm text-gray-500 dark:text-gray-300">
-                {file.type} {/* Display file type */}
-              </div>
-            </td>
+           
             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium w-32">
               {/* Action buttons: Download, Rename, Delete */}
               <button
                 onClick={() => handleDownload(file)} // Handle file download
-                className="hover:text-indigo-900  dark:hover:text-indigo-300 mr-4 text-lg"
+                className="hover:text-indigo-900  dark:hover:text-indigo-300 mr-2 "
                 title="Download"
               >
                 <FaDownload />
               </button>
               <button
                 onClick={() => handleRenameSelectedFile(file)} // Handle file renaming
-                className="hover:text-green-900 dark:hover:text-green-300 mr-4 text-lg"
+                className="hover:text-green-900 dark:hover:text-green-300 mr-2 "
                 title="Rename"
               >
                 <FaEdit />
               </button>
               <button
                 onClick={() => handleDelete(file.id)} // Handle file deletion
-                className="hover:text-red-900 dark:hover:text-red-300 mr-4 text-lg"
+                className="hover:text-red-900 dark:hover:text-red-300 mr-2 "
                 title="Delete"
               >
                 <FaTrash />

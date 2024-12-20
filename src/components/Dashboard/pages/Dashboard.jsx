@@ -15,6 +15,7 @@ import RenameModal from "../components/RenameModal"; // Modal for renaming files
 import AllUsersContent from "./AllUsersPage"; // Page for listing all users
 import { v4 as uuidv4 } from "uuid"; // For generating unique IDs
 import { ThemeProvider } from 'next-themes'; // For theming support
+import ManageTagsContent from './ManageTagsPage';
 
 function DashboardPage() {
   const navigate = useNavigate(); // Hook to navigate between routes
@@ -243,6 +244,40 @@ function DashboardPage() {
     setCurrentView(view); // Change current view state
   };
 
+  const renderContent = () => {
+    switch (currentView) {
+      case 'allUsers':
+        return <AllUsersContent />;
+      case 'manageTags':
+        return <ManageTagsContent />;
+      default:
+        return (
+          <>
+            <DashboardStats
+              totalFiles={files.length}
+              totalLinks={links.length}
+              activeFiles={files.filter((file) => file.status === "active").length}
+              expiredFiles={files.filter((file) => file.status === "expired").length}
+            />
+            <UploadArea handleUpload={handleUpload} />
+            <FileList
+              files={files}
+              searchQuery={searchQuery}
+              isListView={isListView}
+              toggleView={toggleView}
+              handleDownload={handleDownload}
+              handleRenameSelectedFile={handleRenameSelectedFile}
+              handleDelete={handleDelete}
+              selectedFiles={selectedFiles}
+              handleSelectFile={handleSelectFile}
+              handlePreview={handlePreview}
+            />
+          </>
+        );
+    }
+  };
+
+
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <Layout>
@@ -261,31 +296,7 @@ function DashboardPage() {
           <main className="flex-1 flex flex-col overflow-hidden">
             <DashboardHeader toggleSidebar={toggleSidebar} />
             <section className="flex-1 overflow-y-auto p-9">
-              {currentView === "dashboard" ? (
-                <>
-                  <DashboardStats
-                    totalFiles={files.length}
-                    totalLinks={links.length}
-                    activeFiles={files.filter((file) => file.status === "active").length}
-                    expiredFiles={files.filter((file) => file.status === "expired").length}
-                  />
-                  <UploadArea handleUpload={handleUpload} />
-                  <FileList
-                    files={files}
-                    searchQuery={searchQuery}
-                    isListView={isListView}
-                    toggleView={toggleView}
-                    handleDownload={handleDownload}
-                    handleRenameSelectedFile={handleRenameSelectedFile}
-                    handleDelete={handleDelete}
-                    selectedFiles={selectedFiles}
-                    handleSelectFile={handleSelectFile}
-                    handlePreview={handlePreview}
-                  />
-                </>
-              ) : (
-                <AllUsersContent /> // Render all users page when in "users" view
-              )}
+              {renderContent()}
             </section>
           </main>
         </div>
@@ -340,3 +351,4 @@ function DashboardPage() {
 }
 
 export default DashboardPage;
+
