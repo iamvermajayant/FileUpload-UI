@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faPlus, faCog, faTrash, faSignOutAlt, faUsers, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faPlus, faCog, faTrash, faSignOutAlt, faUsers } from '@fortawesome/free-solid-svg-icons';
 import UserProfilePopup from './UserProfilePopup';
 import AllUsersPopup from './AllUsersPopup';
 
@@ -12,27 +13,112 @@ const Sidebar = ({
   handleManageLinks,
   handleBulkDelete,
   handleLogout,
-  handleUserProfile,
-  handleAllUsers,
-  theme,
-  
 }) => {
   const [showAllUsersPopup, setShowAllUsersPopup] = useState(false);
   const [showUserProfilePopup, setShowUserProfilePopup] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [usersPerPage, setUsersPerPage] = useState(10); // Default to 10 users per page
 
-  if (!isSidebarVisible) return null;
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/read_user_details', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        });
+        const user = response.data;
+        setCurrentUser({
+          name: `${user.first_name} ${user.last_name}`,
+          email: user.email,
+          avatar: 'https://via.placeholder.com/150',
+        });
+      } catch (error) {
+        console.error('Error fetching current user details:', error);
+      }
+    };
 
-  const currentUser = {
-    name: "John Doe",
-    email: "john@example.com",
-    avatar: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
+    fetchCurrentUser();
+  }, []);
+
+  // Fetch all users only when AllUsersPopup is opened
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      if (!showAllUsersPopup) return; // Do nothing if the popup is not open
+      setUsersLoading(true);
+      try {
+        const response = await axios.get('http://localhost:8000/api/admin/users', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+          params: {
+            skip: (currentPage - 1) * usersPerPage,
+            limit: usersPerPage,
+            sort_by: 'created_at',
+            sort_order: 'desc',
+          },
+        });
+
+        const users = Array.isArray(response.data) ? response.data : response.data?.data;
+        const total = response.data?.count || 0;
+
+        if (users) {
+          setAllUsers(
+            users.map((user) => ({
+              user_id: user.id,
+              name: `${user.first_name} ${user.last_name}`,
+              email: user.email,
+              username: user.username,
+              role: user.role,
+              created_at: user.created_at,
+              verified: user.verified,
+              on_hold: user.on_hold,
+              last_login: user.last_login,
+              avatar: 'https://via.placeholder.com/150',
+            }))
+          );
+          setTotalPages(Math.ceil(total / usersPerPage)); // Update total pages based on selected users per page
+        } else {
+          console.error('No users found or invalid response format');
+        }
+      } catch (error) {
+        console.error('Error fetching user list:', error);
+      } finally {
+        setUsersLoading(false);
+      }
+    };
+
+    fetchAllUsers();
+  }, [showAllUsersPopup, currentPage, usersPerPage]); // Run when popup opens or pagination changes
+
+  const handleToggleOnHold = async (userId, onHold) => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:8000/api/admin/users/${userId}/on_hold?on_hold=${onHold}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            accept: 'application/json',
+          },
+        }
+      );
+
+      // Update the user in the list after the change
+      const updatedUsers = allUsers.map((user) =>
+        user.user_id === userId ? { ...user, on_hold: onHold } : user
+      );
+      setAllUsers(updatedUsers);
+    } catch (error) {
+      console.error('Error updating on_hold status:', error);
+    }
   };
 
-  const allUsers = [
-    { id: '1', name: 'John Doe', email: 'john@example.com', avatar: 'https://example.com/john.jpg' },
-    { id: '2', name: 'Jane Smith', email: 'jane@example.com', avatar: 'https://example.com/jane.jpg' },
-    // Add more users as needed
-  ];
+  if (!isSidebarVisible) return null;
 
   return (
     <aside className="flex flex-col w-64 h-full px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700">
@@ -61,30 +147,42 @@ const Sidebar = ({
         <SidebarButton onClick={() => setShowAllUsersPopup(true)} icon={faUsers}>
           All Users
         </SidebarButton>
-        
         <SidebarButton onClick={handleLogout} icon={faSignOutAlt}>
           Logout
         </SidebarButton>
       </nav>
       <div className="mt-auto">
-        <button
-          onClick={() => setShowUserProfilePopup(true)}
-          className="flex items-center px-4 py-2 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
-        >
-          <img
-            className="object-cover w-8 h-8 rounded-full"
-            src={currentUser.avatar}
-            alt="User avatar"
-          />
-          <span className="mx-2 font-medium">{currentUser.name}</span>
-        </button>
+        {currentUser && (
+          <button
+            onClick={() => setShowUserProfilePopup(true)}
+            className="flex items-center px-4 py-2 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          >
+            <img
+              className="object-cover w-8 h-8 rounded-full"
+              src={currentUser.avatar}
+              alt="User avatar"
+            />
+            <span className="mx-2 font-medium">{currentUser.name}</span>
+          </button>
+        )}
       </div>
 
-      <AllUsersPopup
-        isOpen={showAllUsersPopup}
-        onClose={() => setShowAllUsersPopup(false)}
-        users={allUsers}
-      />
+      {usersLoading ? (
+        <p className="text-center text-gray-600 dark:text-gray-400">Loading users...</p>
+      ) : (
+        <AllUsersPopup
+          isOpen={showAllUsersPopup}
+          onClose={() => setShowAllUsersPopup(false)}
+          users={allUsers}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
+          usersPerPage={usersPerPage}
+          setUsersPerPage={setUsersPerPage} // Pass setter for users per page
+          handleToggleOnHold={handleToggleOnHold} // Pass the handler for on_hold toggle
+        />
+      )}
+
       <UserProfilePopup
         isOpen={showUserProfilePopup}
         onClose={() => setShowUserProfilePopup(false)}
@@ -107,4 +205,3 @@ const SidebarButton = ({ onClick, icon, children }) => (
 );
 
 export default Sidebar;
-
