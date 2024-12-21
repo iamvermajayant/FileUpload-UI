@@ -21,7 +21,7 @@ const Sidebar = ({
   const [usersLoading, setUsersLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [usersPerPage, setUsersPerPage] = useState(10); // Default to 10 users per page
+  const [usersPerPage, setUsersPerPage] = useState(10);
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -94,6 +94,29 @@ const Sidebar = ({
     fetchAllUsers();
   }, [currentPage, usersPerPage]); // Re-fetch users when the page or usersPerPage changes
 
+  const handleToggleOnHold = async (userId, onHold) => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:8000/api/admin/users/${userId}/on_hold?on_hold=${onHold}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            accept: 'application/json',
+          },
+        }
+      );
+
+      // Update the user in the list after the change
+      const updatedUsers = allUsers.map((user) =>
+        user.user_id === userId ? { ...user, on_hold: onHold } : user
+      );
+      setAllUsers(updatedUsers);
+    } catch (error) {
+      console.error('Error updating on_hold status:', error);
+    }
+  };
+
   if (!isSidebarVisible) return null;
 
   return (
@@ -155,6 +178,7 @@ const Sidebar = ({
           totalPages={totalPages}
           usersPerPage={usersPerPage}
           setUsersPerPage={setUsersPerPage} // Pass setter for users per page
+          handleToggleOnHold={handleToggleOnHold} // Pass the handler for on_hold toggle
         />
       )}
 
