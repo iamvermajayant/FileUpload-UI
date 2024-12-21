@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../../Layout";
 import { ToastContainer, toast } from "react-toastify";
@@ -17,38 +17,11 @@ import { ThemeProvider } from 'next-themes';
 import { useSelector } from "react-redux";
 import { deleteFile, fetchFiles } from "../../../store/slices/fileUploadSlice";
 import { useDispatch } from 'react-redux';
+import axios from 'axios';
 
 function DashboardPage() {
   const navigate = useNavigate();
-  // const [files, setFiles] = useState([
-  //   {
-  //     id: 1,
-  //     name: "file1.txt",
-  //     size: 1048576,
-  //     type: "text/plain",
-  //     tags: ["Important"],
-  //     status: "active",
-  //     preview: null,
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "file2.jpg",
-  //     size: 2097152,
-  //     type: "image/jpeg",
-  //     tags: ["Image"],
-  //     status: "active",
-  //     preview: "https://picsum.photos/200/300",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "file3.pdf",
-  //     size: 3145728,
-  //     type: "application/pdf",
-  //     tags: ["Document"],
-  //     status: "expired",
-  //     preview: null,
-  //   },
-  // ]);
+  const dispatch = useDispatch();
   const Allfiles = useSelector((state) => state.fileUpload.Allfiles);
   const fetchStatus = useSelector((state) => state.fileUpload.fetchStatus);
 
@@ -64,27 +37,47 @@ function DashboardPage() {
   const [showManageLinksModal, setShowManageLinksModal] = useState(false);
   const [showCreateLinkModal, setShowCreateLinkModal] = useState(false);
   const [links, setLinks] = useState([]);
-  const dispatch = useDispatch();
- 
+
+  // State for file stats
+  const [totalFiles, setTotalFiles] = useState(0);
+  const [totalLinks, setTotalLinks] = useState(0);
+  const [activeFiles, setActiveFiles] = useState(0);
+  const [expiredFiles, setExpiredFiles] = useState(0);
+
+  // Fetch file stats from API
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/admin/analytics/files-info', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            accept: 'application/json',
+          },
+        });
+        const { total_files, total_links, active_links, expired_links } = response.data;
+        setTotalFiles(total_files);
+        setTotalLinks(total_links);
+        setActiveFiles(active_links);
+        setExpiredFiles(expired_links);
+      } catch (error) {
+        console.error("Error fetching file stats", error);
+        toast.error("Failed to fetch file stats");
+      }
+    };
+
+    fetchStats();
+  }, []); // This effect runs once when the component is mounted
 
   const handleDelete = (fileId) => {
     if (window.confirm("Are you sure you want to delete this file?")) {
       dispatch(deleteFile(fileId));
-      //dispatch(fetchFiles({ page: 1, perPage : 8, sortOrder: 'asc' }));
       toast.success("File deleted successfully!");
     }
   };
 
-  
-
   const handleBulkDelete = () => {
     if (selectedFiles.length > 0) {
-      if (
-        window.confirm(
-          `Are you sure you want to delete ${selectedFiles.length} selected file(s)?`
-        )
-      ) {
-        //setFiles(files.filter((file) => !selectedFiles.includes(file.id)));
+      if (window.confirm(`Are you sure you want to delete ${selectedFiles.length} selected file(s)?`)) {
         setSelectedFiles([]);
         toast.success("Selected files deleted successfully!");
       }
@@ -126,11 +119,9 @@ function DashboardPage() {
   };
 
   const revokeLink = (linkId) => {
-    setLinks(
-      links.map((link) =>
-        link.id === linkId ? { ...link, status: "revoked" } : link
-      )
-    );
+    setLinks(links.map((link) =>
+      link.id === linkId ? { ...link, status: "revoked" } : link
+    ));
   };
 
   const extendLink = (linkId) => {
@@ -168,7 +159,6 @@ function DashboardPage() {
           ? URL.createObjectURL(fileToUpload)
           : null,
       };
-      //setFiles((prevFiles) => [...prevFiles, newFile]);
       setFileToUpload(null);
       toast.success(`Uploaded ${fileToUpload.name} successfully!`);
     }
@@ -186,11 +176,6 @@ function DashboardPage() {
 
   const confirmRename = () => {
     if (fileToRename && newFileName) {
-      // setFiles(
-      //   files.map((file) =>
-      //     file.id === fileToRename.id ? { ...file, name: newFileName } : file
-      //   )
-      // );
       setIsRenaming(false);
       setFileToRename(null);
       setNewFileName("");
@@ -244,10 +229,10 @@ function DashboardPage() {
             <DashboardHeader toggleSidebar={toggleSidebar} />
             <section className="flex-1 overflow-y-auto p-9">
               <DashboardStats
-                totalFiles={Allfiles.length}
-                totalLinks={links.length}
-                activeFiles={Allfiles.filter((file) => file.status === "active").length}
-                expiredFiles={Allfiles.filter((file) => file.status === "expired").length}
+                totalFiles={totalFiles}
+                totalLinks={totalLinks}
+                activeFiles={activeFiles}
+                expiredFiles={expiredFiles}
               />
               <UploadArea handleUpload={handleUpload} />
               <FileList
@@ -287,25 +272,20 @@ function DashboardPage() {
               URL.revokeObjectURL(fileToPreview.preview);
               setFileToPreview(null);
             }}
-            onCancel={() => {
-              URL.revokeObjectURL(fileToPreview.preview);
-              setFileToPreview(null);
-            }}
+            onCancel={() => setFileToPreview(null)}
+          />
+        )}
+        {showCreateLinkModal && (
+          <CreateLinkModal
+            createLink={createLink}
+            fileToUpload={fileToUpload}
           />
         )}
         {showManageLinksModal && (
           <ManageLinksModal
             links={links}
-            onClose={() => setShowManageLinksModal(false)}
-            onRevoke={revokeLink}
-            onExtend={extendLink}
-          />
-        )}
-        {showCreateLinkModal && (
-          <CreateLinkModal
-            Allfiles={Allfiles}
-            onClose={() => setShowCreateLinkModal(false)}
-            onCreateLink={createLink}
+            revokeLink={revokeLink}
+            extendLink={extendLink}
           />
         )}
         <ToastContainer />
@@ -315,4 +295,3 @@ function DashboardPage() {
 }
 
 export default DashboardPage;
-
