@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import { toast } from 'react-toastify'; // Import toast from react-toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import styles for toast notifications
 
 const UserProfilePopup = ({ isOpen, onClose, user, onLogout, onChangePassword }) => {
   const [newPassword, setNewPassword] = useState('');
@@ -9,25 +11,49 @@ const UserProfilePopup = ({ isOpen, onClose, user, onLogout, onChangePassword })
   const [firstName, setFirstName] = useState(user ? user.first_name : '');
   const [lastName, setLastName] = useState(user ? user.last_name : '');
   const [updateStatus, setUpdateStatus] = useState('');
-  const [passwordError, setPasswordError] = useState('');  // To handle password mismatch error
+  const [passwordError, setPasswordError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
       setPasswordError('Passwords do not match.');
       return;
     }
-    onChangePassword(newPassword);
-    setNewPassword('');
-    setConfirmPassword('');
-    setPasswordError('');  // Clear error if passwords match
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.post(
+        'http://localhost:8000/api/reset_password_confirm',
+        { new_password: newPassword, confirm_password: confirmPassword },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setNewPassword('');
+        setConfirmPassword('');
+        setPasswordError('');
+        toast.success('Password changed successfully!', { autoClose: 2000 });
+        onClose();
+      }
+    } catch (error) {
+      setPasswordError(error.response?.data?.detail || 'Error changing password. Please try again.');
+      toast.error(error.response?.data?.detail || 'Error changing password. Please try again.');
+      console.error('Error changing password:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleUpdateProfile = async () => {
     try {
-      const updatedUser = {
-        first_name: firstName,
-        last_name: lastName,
-      };
+      setLoading(true);
+      const updatedUser = { first_name: firstName, last_name: lastName };
 
       const response = await axios.put('http://localhost:8000/api/update_user', updatedUser, {
         headers: {
@@ -35,11 +61,17 @@ const UserProfilePopup = ({ isOpen, onClose, user, onLogout, onChangePassword })
         },
       });
 
-      setUpdateStatus('Profile updated successfully!');
-      onClose(); // Close the popup after successful update
+      if (response.status === 200) {
+        setUpdateStatus('Profile updated successfully!');
+        toast.success('Profile updated successfully!', { autoClose: 2000 });
+        onClose();
+      }
     } catch (error) {
-      setUpdateStatus('Error updating profile. Please try again.');
+      setUpdateStatus(error.response?.data?.detail || 'Error updating profile. Please try again.');
+      toast.error(error.response?.data?.detail || 'Error updating profile. Please try again.');
       console.error('Error updating profile:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -65,9 +97,7 @@ const UserProfilePopup = ({ isOpen, onClose, user, onLogout, onChangePassword })
               <FontAwesomeIcon icon={faUser} size="3x" />
             )}
             <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <button className="text-white" onClick={() => console.log('Change avatar')}>
-                Change
-              </button>
+              <button className="text-white" onClick={() => console.log('Change avatar')}>Change</button>
             </div>
           </div>
 
@@ -110,9 +140,10 @@ const UserProfilePopup = ({ isOpen, onClose, user, onLogout, onChangePassword })
           {/* Update Profile Button */}
           <button
             onClick={handleUpdateProfile}
+            disabled={loading}
             className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            Update Profile
+            {loading ? 'Updating...' : 'Update Profile'}
           </button>
 
           {/* New Password */}
@@ -147,26 +178,29 @@ const UserProfilePopup = ({ isOpen, onClose, user, onLogout, onChangePassword })
 
           {/* Password Error Message */}
           {passwordError && (
-            <p className="text-red-500 text-sm mt-2">
-              {passwordError}
-            </p>
+            <p className="text-red-500 text-sm mt-2">{passwordError}</p>
           )}
 
           {/* Password Change Button */}
           <button
             onClick={handleChangePassword}
+            disabled={loading}
             className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <FontAwesomeIcon icon={faLock} className="mr-2" />
-            Change Password
+            {loading ? 'Changing...' : (
+              <>
+                <FontAwesomeIcon icon={faLock} className="mr-2" />
+                Change Password
+              </>
+            )}
           </button>
 
-          {/* Update Status Message
+          {/* Update Status Message */}
           {updateStatus && (
             <p className={`text-sm mt-2 ${updateStatus.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
               {updateStatus}
             </p>
-          )} */}
+          )}
         </div>
 
         {/* Close Button */}
