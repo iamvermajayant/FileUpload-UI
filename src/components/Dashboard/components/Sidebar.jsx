@@ -13,11 +13,15 @@ const Sidebar = ({
   handleManageLinks,
   handleBulkDelete,
   handleLogout,
-  theme,
 }) => {
   const [showAllUsersPopup, setShowAllUsersPopup] = useState(false);
   const [showUserProfilePopup, setShowUserProfilePopup] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null); // To hold fetched user data
+  const [currentUser, setCurrentUser] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [usersPerPage, setUsersPerPage] = useState(10); // Default to 10 users per page
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -31,23 +35,66 @@ const Sidebar = ({
         setCurrentUser({
           name: `${user.first_name} ${user.last_name}`,
           email: user.email,
-          avatar: 'https://via.placeholder.com/150', // Placeholder avatar for now
+          avatar: 'https://via.placeholder.com/150',
         });
       } catch (error) {
-        console.error('Error fetching user details:', error);
+        console.error('Error fetching current user details:', error);
       }
     };
 
     fetchCurrentUser();
   }, []);
 
-  if (!isSidebarVisible) return null;
+  // Fetch all users with pagination and users per page
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      setUsersLoading(true);
+      try {
+        const response = await axios.get('http://localhost:8000/api/admin/users', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+          params: {
+            skip: (currentPage - 1) * usersPerPage,
+            limit: usersPerPage,
+            sort_by: 'created_at',
+            sort_order: 'desc',
+          },
+        });
 
-  const allUsers = [
-    { id: '1', name: 'John Doe', email: 'john@example.com', avatar: 'https://example.com/john.jpg' },
-    { id: '2', name: 'Jane Smith', email: 'jane@example.com', avatar: 'https://example.com/jane.jpg' },
-    // Add more users as needed
-  ];
+        const users = Array.isArray(response.data) ? response.data : response.data?.data;
+        const total = response.data?.count || 0;
+
+        if (users) {
+          setAllUsers(
+            users.map((user) => ({
+              user_id: user.id,
+              name: `${user.first_name} ${user.last_name}`,
+              email: user.email,
+              username: user.username,
+              role: user.role,
+              created_at: user.created_at,
+              verified: user.verified,
+              on_hold: user.on_hold,
+              last_login: user.last_login,
+              avatar: 'https://via.placeholder.com/150',
+            }))
+          );
+          setTotalPages(Math.ceil(total / usersPerPage)); // Update total pages based on selected users per page
+        } else {
+          console.error('No users found or invalid response format');
+        }
+      } catch (error) {
+        console.error('Error fetching user list:', error);
+      } finally {
+        setUsersLoading(false);
+      }
+    };
+
+    fetchAllUsers();
+  }, [currentPage, usersPerPage]); // Re-fetch users when the page or usersPerPage changes
+
+  if (!isSidebarVisible) return null;
 
   return (
     <aside className="flex flex-col w-64 h-full px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700">
@@ -96,11 +143,21 @@ const Sidebar = ({
         )}
       </div>
 
-      <AllUsersPopup
-        isOpen={showAllUsersPopup}
-        onClose={() => setShowAllUsersPopup(false)}
-        users={allUsers}
-      />
+      {usersLoading ? (
+        <p className="text-center text-gray-600 dark:text-gray-400">Loading users...</p>
+      ) : (
+        <AllUsersPopup
+          isOpen={showAllUsersPopup}
+          onClose={() => setShowAllUsersPopup(false)}
+          users={allUsers}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
+          usersPerPage={usersPerPage}
+          setUsersPerPage={setUsersPerPage} // Pass setter for users per page
+        />
+      )}
+
       <UserProfilePopup
         isOpen={showUserProfilePopup}
         onClose={() => setShowUserProfilePopup(false)}
