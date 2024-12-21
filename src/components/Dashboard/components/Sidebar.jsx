@@ -21,7 +21,7 @@ const Sidebar = ({
   const [usersLoading, setUsersLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [usersPerPage, setUsersPerPage] = useState(10);
+  const [usersPerPage, setUsersPerPage] = useState(10); // Default to 10 users per page
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -45,9 +45,10 @@ const Sidebar = ({
     fetchCurrentUser();
   }, []);
 
-  // Fetch all users with pagination and users per page
+  // Fetch all users only when AllUsersPopup is opened
   useEffect(() => {
     const fetchAllUsers = async () => {
+      if (!showAllUsersPopup) return; // Do nothing if the popup is not open
       setUsersLoading(true);
       try {
         const response = await axios.get('http://localhost:8000/api/admin/users', {
@@ -92,7 +93,7 @@ const Sidebar = ({
     };
 
     fetchAllUsers();
-  }, [currentPage, usersPerPage]); // Re-fetch users when the page or usersPerPage changes
+  }, [showAllUsersPopup, currentPage, usersPerPage]); // Run when popup opens or pagination changes
 
   const handleToggleOnHold = async (userId, onHold) => {
     try {

@@ -121,14 +121,12 @@ const UserProfilePopup = ({ isOpen, onClose, user, onLogout, onChangePassword })
     }
   };
 
+  // Only call get2faStatus when the selected action is 'update2fa'
   useEffect(() => {
-    if (user) {
-      setFirstName(user.first_name);
-      setLastName(user.last_name);
+    if (selectedAction === 'update2fa') {
+      get2faStatus();
     }
-    // Check 2FA status on mount
-    get2faStatus();
-  }, [user]);
+  }, [selectedAction]);
 
   if (!isOpen) return null;
 
