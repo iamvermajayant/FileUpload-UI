@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faEnvelope, faLock, faTimes } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { toast } from 'react-toastify'; // Import toast from react-toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import styles for toast notifications
@@ -13,7 +13,52 @@ const UserProfilePopup = ({ isOpen, onClose, user, onLogout, onChangePassword })
   const [updateStatus, setUpdateStatus] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [is2faEnabled, setIs2faEnabled] = useState(false); // State to store 2FA status
+  const [selectedAction, setSelectedAction] = useState(''); // State to track selected action (name, password, or 2fa)
 
+  // Function to get 2FA status
+  const get2faStatus = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.get('http://localhost:8000/api/get_2fa_status', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setIs2faEnabled(response.data.enabled); // Assuming the response contains a boolean `enabled` field
+    } catch (error) {
+      console.error('Error fetching 2FA status:', error);
+      toast.error('Failed to fetch 2FA status.');
+    }
+  };
+
+  // Function to update 2FA status
+  const update2faStatus = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const enable2fa = !is2faEnabled; // Toggle the 2FA status
+      const response = await axios.post(
+        'http://localhost:8000/api/update_2fa',
+        `enable_2fa=${enable2fa}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
+      
+      if (response.status === 200) {
+        setIs2faEnabled(enable2fa);
+        toast.success(`2FA ${enable2fa ? 'enabled' : 'disabled'} successfully!`, { autoClose: 2000 });
+      }
+    } catch (error) {
+      console.error('Error updating 2FA status:', error);
+      toast.error('Failed to update 2FA status.');
+    }
+  };
+
+  // Function to change password
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
       setPasswordError('Passwords do not match.');
@@ -50,6 +95,7 @@ const UserProfilePopup = ({ isOpen, onClose, user, onLogout, onChangePassword })
     }
   };
 
+  // Function to update profile
   const handleUpdateProfile = async () => {
     try {
       setLoading(true);
@@ -80,6 +126,8 @@ const UserProfilePopup = ({ isOpen, onClose, user, onLogout, onChangePassword })
       setFirstName(user.first_name);
       setLastName(user.last_name);
     }
+    // Check 2FA status on mount
+    get2faStatus();
   }, [user]);
 
   if (!isOpen) return null;
@@ -87,130 +135,137 @@ const UserProfilePopup = ({ isOpen, onClose, user, onLogout, onChangePassword })
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full relative">
-        <h2 className="text-2xl font-bold mb-4 dark:text-white">User Profile</h2>
-        <div className="flex flex-col items-center space-y-4">
-          {/* Avatar */}
-          <div className="w-24 h-24 rounded-full bg-gray-300 flex items-center justify-center relative group">
-            {user.avatar ? (
-              <img src={user.avatar} alt={user.name} className="w-full h-full rounded-full object-cover" />
-            ) : (
-              <FontAwesomeIcon icon={faUser} size="3x" />
-            )}
-            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <button className="text-white" onClick={() => console.log('Change avatar')}>Change</button>
-            </div>
-          </div>
-
-          {/* User Email */}
-          <p className="text-gray-600 dark:text-gray-300">
-            <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
-            {user.email}
-          </p>
-
-          {/* First Name */}
-          <div className="w-full">
-            <label htmlFor="first-name" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
-              First Name
-            </label>
-            <input
-              id="first-name"
-              type="text"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-              placeholder="Enter first name"
-            />
-          </div>
-
-          {/* Last Name */}
-          <div className="w-full">
-            <label htmlFor="last-name" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
-              Last Name
-            </label>
-            <input
-              id="last-name"
-              type="text"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-              placeholder="Enter last name"
-            />
-          </div>
-
-          {/* Update Profile Button */}
-          <button
-            onClick={handleUpdateProfile}
-            disabled={loading}
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {loading ? 'Updating...' : 'Update Profile'}
-          </button>
-
-          {/* New Password */}
-          <div className="w-full">
-            <label htmlFor="new-password" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
-              New Password
-            </label>
-            <input
-              type="password"
-              id="new-password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-              placeholder="Enter new password"
-            />
-          </div>
-
-          {/* Confirm Password */}
-          <div className="w-full">
-            <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirm-password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-              placeholder="Confirm your new password"
-            />
-          </div>
-
-          {/* Password Error Message */}
-          {passwordError && (
-            <p className="text-red-500 text-sm mt-2">{passwordError}</p>
-          )}
-
-          {/* Password Change Button */}
-          <button
-            onClick={handleChangePassword}
-            disabled={loading}
-            className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            {loading ? 'Changing...' : (
-              <>
-                <FontAwesomeIcon icon={faLock} className="mr-2" />
-                Change Password
-              </>
-            )}
-          </button>
-
-          {/* Update Status Message */}
-          {updateStatus && (
-            <p className={`text-sm mt-2 ${updateStatus.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
-              {updateStatus}
-            </p>
-          )}
-        </div>
-
-        {/* Close Button */}
+        {/* Close Button (X) */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl"
-          aria-label="Close"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 focus:outline-none"
         >
-          &times;
+          <FontAwesomeIcon icon={faTimes} size="lg" />
         </button>
+
+        <h2 className="text-2xl font-bold mb-4 dark:text-white">User Profile</h2>
+        <div className="flex flex-col items-center space-y-4">
+          {/* Action Dropdown */}
+          <div className="w-full mb-4">
+            <label htmlFor="action-select" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
+              Select Action
+            </label>
+            <select
+              id="action-select"
+              value={selectedAction}
+              onChange={(e) => setSelectedAction(e.target.value)}
+              className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+            >
+              <option value="">-- Select Action --</option>
+              <option value="updateProfile">Update Profile</option>
+              <option value="changePassword">Change Password</option>
+              <option value="update2fa">Update 2FA</option>
+            </select>
+          </div>
+
+          {/* Conditional rendering based on the selected action */}
+          {selectedAction === 'updateProfile' && (
+            <>
+              {/* First Name */}
+              <div className="w-full">
+                <label htmlFor="first-name" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
+                  First Name
+                </label>
+                <input
+                  id="first-name"
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                  placeholder="Enter first name"
+                />
+              </div>
+
+              {/* Last Name */}
+              <div className="w-full">
+                <label htmlFor="last-name" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
+                  Last Name
+                </label>
+                <input
+                  id="last-name"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                  placeholder="Enter last name"
+                />
+              </div>
+
+              {/* Update Profile Button */}
+              <button
+                onClick={handleUpdateProfile}
+                disabled={loading}
+                className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {loading ? 'Updating...' : 'Update Profile'}
+              </button>
+            </>
+          )}
+
+          {selectedAction === 'changePassword' && (
+            <>
+              {/* New Password */}
+              <div className="w-full">
+                <label htmlFor="new-password" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  id="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                  placeholder="Enter new password"
+                />
+              </div>
+
+              {/* Confirm Password */}
+              <div className="w-full">
+                <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  id="confirm-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full border rounded-md px-3 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
+                  placeholder="Confirm new password"
+                />
+              </div>
+
+              {/* Error Message */}
+              {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
+
+              {/* Change Password Button */}
+              <button
+                onClick={handleChangePassword}
+                disabled={loading}
+                className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {loading ? 'Changing...' : 'Change Password'}
+              </button>
+            </>
+          )}
+
+          {selectedAction === 'update2fa' && (
+            <>
+              <div className="w-full mb-4">
+                <button
+                  onClick={update2faStatus}
+                  className={`w-full py-2 rounded ${is2faEnabled ? 'bg-red-500' : 'bg-green-500'} text-white`}
+                >
+                  {is2faEnabled ? 'Disable 2FA' : 'Enable 2FA'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
