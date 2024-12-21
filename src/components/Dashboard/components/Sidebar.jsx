@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faPlus, faCog, faTrash, faSignOutAlt, faUsers, faMoon, faSun } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faPlus, faCog, faTrash, faSignOutAlt, faUsers } from '@fortawesome/free-solid-svg-icons';
 import UserProfilePopup from './UserProfilePopup';
 import AllUsersPopup from './AllUsersPopup';
 
@@ -12,21 +13,35 @@ const Sidebar = ({
   handleManageLinks,
   handleBulkDelete,
   handleLogout,
-  handleUserProfile,
-  handleAllUsers,
   theme,
-  
 }) => {
   const [showAllUsersPopup, setShowAllUsersPopup] = useState(false);
   const [showUserProfilePopup, setShowUserProfilePopup] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null); // To hold fetched user data
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/read_user_details', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        });
+        const user = response.data;
+        setCurrentUser({
+          name: `${user.first_name} ${user.last_name}`,
+          email: user.email,
+          avatar: 'https://via.placeholder.com/150', // Placeholder avatar for now
+        });
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   if (!isSidebarVisible) return null;
-
-  const currentUser = {
-    name: "John Doe",
-    email: "john@example.com",
-    avatar: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80"
-  };
 
   const allUsers = [
     { id: '1', name: 'John Doe', email: 'john@example.com', avatar: 'https://example.com/john.jpg' },
@@ -61,23 +76,24 @@ const Sidebar = ({
         <SidebarButton onClick={() => setShowAllUsersPopup(true)} icon={faUsers}>
           All Users
         </SidebarButton>
-        
         <SidebarButton onClick={handleLogout} icon={faSignOutAlt}>
           Logout
         </SidebarButton>
       </nav>
       <div className="mt-auto">
-        <button
-          onClick={() => setShowUserProfilePopup(true)}
-          className="flex items-center px-4 py-2 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
-        >
-          <img
-            className="object-cover w-8 h-8 rounded-full"
-            src={currentUser.avatar}
-            alt="User avatar"
-          />
-          <span className="mx-2 font-medium">{currentUser.name}</span>
-        </button>
+        {currentUser && (
+          <button
+            onClick={() => setShowUserProfilePopup(true)}
+            className="flex items-center px-4 py-2 text-gray-600 transition-colors duration-300 transform rounded-md dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+          >
+            <img
+              className="object-cover w-8 h-8 rounded-full"
+              src={currentUser.avatar}
+              alt="User avatar"
+            />
+            <span className="mx-2 font-medium">{currentUser.name}</span>
+          </button>
+        )}
       </div>
 
       <AllUsersPopup
@@ -107,4 +123,3 @@ const SidebarButton = ({ onClick, icon, children }) => (
 );
 
 export default Sidebar;
-
